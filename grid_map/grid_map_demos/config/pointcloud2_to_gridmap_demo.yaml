@@ -1,0 +1,28 @@
+pointcloud2_to_gridmap:
+  ros__parameters:
+    pointcloud_topic: "/stereo/points"
+    map_frame_id: "imu_link"
+    filters:
+      filter1:  # Fill holes in the map with inpainting.
+        name: inpaint
+        type: gridMapCv/InpaintFilter
+        params:
+          input_layer: elevation
+          output_layer: elevation_inpainted
+          radius: 0.05
+
+      filter2:  # Compute surface normals.
+        name: surface_normals
+        type: gridMapFilters/NormalVectorsFilter
+        params:
+          input_layer: elevation_inpainted
+          output_layers_prefix: normal_vectors_
+          radius: 0.05
+          normal_vector_positive_axis: z
+
+      filter3:  # Compute slope from surface normal.
+        name: slope
+        type: gridMapFilters/MathExpressionFilter
+        params:
+          output_layer: slope
+          expression: acos(normal_vectors_z)

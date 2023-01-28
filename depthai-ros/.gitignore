@@ -1,0 +1,7 @@
+*.json
+.vscode
+devel
+__pycache__
+build
+.DS_Store
+*.blob

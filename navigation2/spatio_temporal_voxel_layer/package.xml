@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format ="3">
+  <name>spatio_temporal_voxel_layer</name>
+  <version>2.2.0</version>
+  <description>The spatio-temporal 3D obstacle costmap package</description>
+
+  <maintainer email="stevenmacenski@gmail.com">Steve Macenski</maintainer>
+
+ <license>LGPL v2.1</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <member_of_group>rosidl_interface_packages</member_of_group>
+  <build_depend>rosidl_default_generators</build_depend>
+  <exec_depend>rosidl_default_runtime</exec_depend>
+  
+  <depend>builtin_interfaces</depend>
+  <depend>nav2_costmap_2d</depend>
+  <depend>geometry_msgs</depend>
+  <depend>pluginlib</depend>
+  <depend>sensor_msgs</depend>
+  <depend>std_msgs</depend>
+  <depend>std_srvs</depend>
+  <depend>laser_geometry</depend>
+  <depend>libpcl-all</depend>
+  <depend>pcl_conversions</depend>
+  <depend>rclcpp</depend>
+  <depend>message_filters</depend>
+  <depend>tf2_ros</depend>
+  <depend>tf2_geometry_msgs</depend>
+  <depend>visualization_msgs</depend>
+  <depend>libopenvdb-dev</depend>
+  <depend>libopenvdb</depend>
+  <depend>libopenexr-dev</depend>
+
+  <test_depend>ament_lint_auto</test_depend>
+
+  <export>
+    <costmap_2d plugin="${prefix}/costmap_plugins.xml" />
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

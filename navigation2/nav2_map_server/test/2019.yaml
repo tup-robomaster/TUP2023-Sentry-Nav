@@ -1,0 +1,5 @@
+image: "2019.pgm"
+resolution: 0.05
+origin: [-3.6, 13.2, 0]
+occupied_thresh: 0.65
+free_thresh: 0.196
