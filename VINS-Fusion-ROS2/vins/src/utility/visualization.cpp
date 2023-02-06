@@ -17,7 +17,9 @@ rclcpp::Publisher<sensor_msgs::msg::PointCloud>::SharedPtr pub_point_cloud, pub_
 rclcpp::Publisher<visualization_msgs::msg::Marker>::SharedPtr pub_key_poses;
 rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr pub_camera_pose;
 rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr pub_camera_pose_visual;
-std::unique_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster_;
+std::shared_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster_;
+std::shared_ptr<tf2_ros::TransformListener> tf_listener_;
+std::shared_ptr<tf2_ros::Buffer> tf_buffer_;
 nav_msgs::msg::Path path;
 
 rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr pub_keyframe_pose;
@@ -46,7 +48,9 @@ void registerPub(rclcpp::Node::SharedPtr n)
     pub_keyframe_point = n->create_publisher<sensor_msgs::msg::PointCloud>("vins_estimator/keyframe_point", 1000);
     pub_extrinsic = n->create_publisher<nav_msgs::msg::Odometry>("vins_estimator/extrinsic", 1000);
     pub_image_track = n->create_publisher<sensor_msgs::msg::Image>("vins_estimator/image_track", 1000);
-    tf_broadcaster_ = std::make_unique<tf2_ros::TransformBroadcaster>(*n);
+    tf_buffer_ = std::make_shared<tf2_ros::Buffer>(n->get_clock());
+    tf_broadcaster_ = std::make_shared<tf2_ros::TransformBroadcaster>(*n);
+    tf_listener_ = std::make_shared<tf2_ros::TransformListener>(*tf_buffer_);
     cameraposevisual.setScale(0.1);
     cameraposevisual.setLineWidth(0.01);
 }
@@ -313,59 +317,45 @@ void pubTF(const Estimator &estimator, const std_msgs::msg::Header &header)
 {
     if( estimator.solver_flag != Estimator::SolverFlag::NON_LINEAR)
         return;
-    geometry_msgs::msg::TransformStamped transform, transform_cam;
-
+    
+    tf2::Transform odom2base, imu2base, odom2imu;
+    geometry_msgs::msg::TransformStamped odom2base_msg, imu2base_msg;
+    try
+    {
+        imu2base_msg = tf_buffer_->lookupTransform("oak_imu_frame", "base_link", header.stamp, rclcpp::Duration::from_seconds(0.1));
+        tf2::convert(imu2base_msg.transform, imu2base);
+    }
+    catch (const tf2::TransformException &ex)
+    {
+        ROS_ERROR("%s",ex.what());
+        return;
+    }
+    //Get odom2imu
     tf2::Quaternion q;
-    // body frame
     Vector3d correct_t;
     Quaterniond correct_q;
-    
     correct_t = estimator.Ps[WINDOW_SIZE];
     correct_q = estimator.Rs[WINDOW_SIZE];
-    
-
-    transform.header.stamp = header.stamp;
-    transform.header.frame_id = "odom";
-    transform.child_frame_id = "imu_link";
-
-    transform.transform.translation.x = correct_t(0);
-    transform.transform.translation.y = correct_t(1);
-    transform.transform.translation.z = correct_t(2);
-
-
     q.setW(correct_q.w());
     q.setX(correct_q.x());
     q.setY(correct_q.y());
     q.setZ(correct_q.z());
-    transform.transform.rotation.x = q.x();
-    transform.transform.rotation.y = q.y();
-    transform.transform.rotation.z = q.z();
-    transform.transform.rotation.w = q.w();
+    odom2imu.setRotation(q);
+    odom2imu.setOrigin(tf2::Vector3(correct_t(0),correct_t(1),correct_t(2)));
 
-    tf_broadcaster_->sendTransform(transform);
-
-
-    // camera frame
-    transform_cam.header.stamp = header.stamp;
-    transform_cam.header.frame_id = "imu_link";
-    transform_cam.child_frame_id = "camera";
-
-
-    transform_cam.transform.translation.x = estimator.tic[0].x();
-    transform_cam.transform.translation.y = estimator.tic[0].y();
-    transform_cam.transform.translation.z = estimator.tic[0].z();
-
-    q.setW(Quaterniond(estimator.ric[0]).w());
-    q.setX(Quaterniond(estimator.ric[0]).x());
-    q.setY(Quaterniond(estimator.ric[0]).y());
-    q.setZ(Quaterniond(estimator.ric[0]).z());
-
-    transform_cam.transform.rotation.x = q.x();
-    transform_cam.transform.rotation.y = q.y();
-    transform_cam.transform.rotation.z = q.z();
-    transform_cam.transform.rotation.w = q.w();
-    tf_broadcaster_->sendTransform(transform_cam);
-    // br->sendTransform(transform_cam);
+    //Get odom2base
+    odom2base = odom2imu * imu2base;
+    odom2base_msg.header.stamp = header.stamp;
+    odom2base_msg.header.frame_id = "odom";
+    odom2base_msg.child_frame_id = "base_link";
+    odom2base_msg.transform.translation.x = odom2base.getOrigin().getX();
+    odom2base_msg.transform.translation.y = odom2base.getOrigin().getY();
+    odom2base_msg.transform.translation.z = odom2base.getOrigin().getZ();
+    odom2base_msg.transform.rotation.x = odom2base.getRotation().x();
+    odom2base_msg.transform.rotation.y = odom2base.getRotation().y();
+    odom2base_msg.transform.rotation.z = odom2base.getRotation().z();
+    odom2base_msg.transform.rotation.w = odom2base.getRotation().w();
+    tf_broadcaster_->sendTransform(odom2base_msg);
     
     nav_msgs::msg::Odometry odometry;
     odometry.header = header;

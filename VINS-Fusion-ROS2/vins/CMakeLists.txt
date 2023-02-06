@@ -16,6 +16,7 @@ find_package(visualization_msgs REQUIRED)
 find_package(nav_msgs REQUIRED)
 find_package(tf2 REQUIRED)
 find_package(tf2_ros REQUIRED)
+find_package(tf2_geometry_msgs REQUIRED)
 find_package(cv_bridge REQUIRED)
 find_package(builtin_interfaces REQUIRED)
 find_package(camera_models REQUIRED)
@@ -59,7 +60,7 @@ target_link_libraries(vins_lib  ${OpenCV_LIBS} ${CERES_LIBRARIES})
 ament_target_dependencies(vins_lib rclcpp rcpputils std_msgs visualization_msgs geometry_msgs nav_msgs tf2 tf2_ros cv_bridge camera_models image_transport)
 
 add_executable(vins_node src/rosNodeTest.cpp)
-ament_target_dependencies(vins_node rclcpp rcpputils std_msgs visualization_msgs builtin_interfaces geometry_msgs nav_msgs tf2 tf2_ros cv_bridge camera_models image_transport)
+ament_target_dependencies(vins_node rclcpp rcpputils std_msgs visualization_msgs builtin_interfaces geometry_msgs nav_msgs tf2 tf2_ros tf2_geometry_msgs cv_bridge camera_models image_transport)
 target_link_libraries(vins_node vins_lib) 
 
 add_executable(kitti_odom_test src/KITTIOdomTest.cpp)
@@ -67,7 +68,7 @@ ament_target_dependencies(kitti_odom_test rclcpp rcpputils std_msgs visualizatio
 target_link_libraries(kitti_odom_test vins_lib) 
 
 add_executable(kitti_gps_test src/KITTIGPSTest.cpp)
-ament_target_dependencies(kitti_gps_test rclcpp rcpputils std_msgs visualization_msgs geometry_msgs nav_msgs tf2 tf2_ros cv_bridge camera_models image_transport)
+ament_target_dependencies(kitti_gps_test rclcpp rcpputils std_msgs visualization_msgs geometry_msgs nav_msgs tf2 tf2_ros tf2_geometry_msgs cv_bridge camera_models image_transport)
 target_link_libraries(kitti_gps_test vins_lib) 
 
 # added from DEBUG

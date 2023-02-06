@@ -14,7 +14,7 @@ import os
 
 def generate_launch_description():
     bringup_dir = get_package_share_directory('depthai_bridge')
-    xacro_path = os.path.join(bringup_dir, 'urdf', 'depthai_descr.urdf.xacro')
+    xacro_path = os.path.join(bringup_dir, 'urdf', 'sentry_descr.urdf.xacro')
 
     camera_model = LaunchConfiguration('camera_model',  default = 'OAK-D')
     tf_prefix    = LaunchConfiguration('tf_prefix',     default = 'oak')
