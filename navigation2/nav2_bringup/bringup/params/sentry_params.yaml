@@ -79,7 +79,7 @@ controller_server:
       plugin: teb_local_planner::TebLocalPlannerROS
       teb_autosize: 1.0
       dt_ref: 0.3
-      dt_hysteresis: 0.1
+      dt_hysteresis: 0.03
       max_samples: 500
       global_plan_overwrite_orientation: False
       allow_init_with_backwards_motion: False
@@ -91,22 +91,22 @@ controller_server:
       publish_feedback: False
           
       # Robot
-      max_vel_x: 0.26
-      max_vel_theta: 1.0 
+      max_vel_x: 1.5
+      max_vel_theta: 0.15 
       acc_lim_x: 2.5
-      acc_lim_theta: 3.2
+      acc_lim_theta: 1.0
       footprint_model: # types: "point", "circular", "two_circles", "line", "polygon"
         type: "circular"
-        radius: 0.22 # for type "circular"
+        radius: 0.3 # for type "circular"
       # GoalTolerance
       free_goal_vel: False
       # Obstacles
-      min_obstacle_dist: 0.27
-      inflation_dist: 0.6
+      min_obstacle_dist: 0.1
+      inflation_dist: 0.3
       include_costmap_obstacles: True
       costmap_obstacles_behind_robot_dist: 1.0
       obstacle_poses_affected: 15
-      dynamic_obstacle_inflation_dist: 0.6
+      dynamic_obstacle_inflation_dist: 0.3
       include_dynamic_obstacles: True 
       costmap_converter_plugin: "costmap_converter::CostmapToPolygonsDBSMCCH"
       costmap_converter_spin_thread: True
@@ -128,7 +128,7 @@ controller_server:
       weight_optimaltime: 1.0 # must be > 0
       weight_shortest_path: 0.0
       weight_obstacle: 100.0
-      weight_inflation: 0.2
+      weight_inflation: 0.3
       weight_dynamic_obstacle: 10.0 # not in use yet
       weight_dynamic_obstacle_inflation: 0.2
       weight_viapoint: 50.0
@@ -184,7 +184,7 @@ local_costmap:
       width: 5
       height: 5
       resolution: 0.05
-      robot_radius: 0.3
+      robot_radius: 0.2
       plugins: ["msg_layer", "inflation_layer"]
       msg_layer:
         plugin: "nav2_msg_costmap_plugin::MsgLayer"
@@ -193,7 +193,7 @@ local_costmap:
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
         cost_scaling_factor: 3.0
-        inflation_radius: 0.15
+        inflation_radius: 0.1
   local_costmap_client:
     ros__parameters:
       use_sim_time: True
@@ -209,7 +209,7 @@ global_costmap:
       global_frame: map
       robot_base_frame: base_link
       use_sim_time: True
-      robot_radius: 0.22
+      robot_radius: 0.3
       resolution: 0.05
       track_unknown_space: true
       plugins: ["static_layer", "inflation_layer"]
@@ -231,7 +231,7 @@ global_costmap:
 map_server:
   ros__parameters:
     use_sim_time: True
-    yaml_filename: "/home/rangeronmars/ros2_ws/src/navigation2/nav2_bringup/bringup/maps/2019.yaml"
+    yaml_filename: "/home/tup/ros2_ws/src/TUP2023-Sentry-Framework/TUP2023-Sentry-Nav/navigation2/nav2_bringup/bringup/maps/hall.yaml"
 
 map_saver:
   ros__parameters:

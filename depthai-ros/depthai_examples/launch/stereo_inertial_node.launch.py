@@ -45,9 +45,9 @@ def generate_launch_description():
     extended       = LaunchConfiguration('extended', default = False)
     subpixel       = LaunchConfiguration('subpixel', default = True)
     rectify        = LaunchConfiguration('rectify', default = False)
-    depth_aligned  = LaunchConfiguration('depth_aligned', default = True)
-    manualExposure = LaunchConfiguration('manualExposure', default = False)
-    expTime        = LaunchConfiguration('expTime', default = 5000)
+    depth_aligned  = LaunchConfiguration('depth_aligned', default = False)
+    manualExposure = LaunchConfiguration('manualExposure', default = True)
+    expTime        = LaunchConfiguration('expTime', default = 3000)
     sensIso        = LaunchConfiguration('sensIso', default = 1000)
 
     enableSpatialDetection  = LaunchConfiguration('enableSpatialDetection', default = False)
@@ -76,7 +76,7 @@ def generate_launch_description():
     enableFloodLight   = LaunchConfiguration('enableFloodLight', default = False)
     dotProjectormA     = LaunchConfiguration('dotProjectormA', default = 200.0)
     floodLightmA       = LaunchConfiguration('floodLightmA', default = 0.0)
-    enableRviz         = LaunchConfiguration('enableRviz', default = True)
+    enableRviz         = LaunchConfiguration('enableRviz', default = False)
 
 
     declare_mxId_cmd = DeclareLaunchArgument(
@@ -316,17 +316,12 @@ def generate_launch_description():
                                               'cam_yaw'     : cam_yaw}.items())
 
 
-    tf_adapter_node = launch_ros.actions.Node(
-            package="tf2_ros",
-            executable="static_transform_publisher",
-            output="screen" ,
-            arguments=["0.0375", "0", "0", "1.5708", "-1.5708", "0", "camera", "oak-base_link"]
-        )
+
     tf_adapter_node_ = launch_ros.actions.Node(
         package="tf2_ros",
         executable="static_transform_publisher",
         output="screen" ,
-        arguments=["0.0", "0", "0", "1.5708", "0", "0", "map", "odom"]
+        arguments=["0.0", "0", "0", "0", "0", "0", "map", "odom"]
     )
 
     stereo_node = launch_ros.actions.Node(
@@ -500,7 +495,6 @@ def generate_launch_description():
 
     ld.add_action(urdf_launch)
     ld.add_action(stereo_node)
-    ld.add_action(tf_adapter_node)
     ld.add_action(tf_adapter_node_)
 
     if LaunchConfigurationEquals('depth_aligned', 'True') and LaunchConfigurationEquals('rectify', 'True'):

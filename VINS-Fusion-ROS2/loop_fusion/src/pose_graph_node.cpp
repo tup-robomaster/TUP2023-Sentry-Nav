@@ -53,7 +53,7 @@ int SKIP_CNT;
 int skip_cnt = 0;
 bool load_flag = 0;
 bool start_flag = 0;
-double SKIP_DIS = 0.5;
+double SKIP_DIS = 0.1;
 
 int VISUALIZATION_SHIFT_X;
 int VISUALIZATION_SHIFT_Y;
@@ -420,7 +420,6 @@ int main(int argc, char **argv)
     VISUALIZATION_SHIFT_X = 0;
     VISUALIZATION_SHIFT_Y = 0;
     SKIP_CNT = 1;
-    SKIP_DIS = 0.1;
 
     if(argc != 2)
     {

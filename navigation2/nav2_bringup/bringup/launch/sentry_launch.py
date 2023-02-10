@@ -47,7 +47,7 @@ def generate_launch_description():
     #              https://github.com/ros2/launch_ros/issues/56
     remappings = [
                   ('/local_costmap/grid_map','/grid_map'),
-                  ('/goal_pose','/move_base_simple/goal')]
+                  ('/move_base_simple/goal','/goal_pose')]
 
     # Create our own temporary YAML files that include substitutions
     param_substitutions = {

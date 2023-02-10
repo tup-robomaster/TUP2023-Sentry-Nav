@@ -236,7 +236,7 @@ MsgLayer::updateCosts(nav2_costmap_2d::Costmap2D & master_grid, int min_i, int m
                 if (!std::isnan(elevation) && !std::isnan(slope))
                 {
                     double cost;
-                    if (elevation < 0)
+                    if (elevation < 0.1)
                         cost = 0;
                     else
                         cost = 254;

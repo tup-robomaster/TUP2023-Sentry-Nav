@@ -12,6 +12,9 @@ find_package(ament_index_cpp REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(visualization_msgs REQUIRED)
+find_package(tf2 REQUIRED)
+find_package(tf2_ros REQUIRED)
+find_package(geometry_msgs REQUIRED)
 find_package(nav_msgs REQUIRED)
 find_package(cv_bridge REQUIRED)
 find_package(camera_models REQUIRED)
@@ -43,7 +46,7 @@ add_executable(loop_fusion_node
 
     
 # added from DEBUG
-ament_target_dependencies(loop_fusion_node camera_models rclcpp ament_index_cpp std_msgs sensor_msgs visualization_msgs nav_msgs cv_bridge OpenCV) # roslib) # does 'roslib' really need ??
+ament_target_dependencies(loop_fusion_node camera_models rclcpp ament_index_cpp std_msgs tf2 tf2_ros geometry_msgs sensor_msgs visualization_msgs nav_msgs cv_bridge OpenCV) # roslib) # does 'roslib' really need ??
 
 target_link_libraries(loop_fusion_node ${OpenCV_LIBS} ${CERES_LIBRARIES} ) #${catkin_LIBRARIES}  )
 

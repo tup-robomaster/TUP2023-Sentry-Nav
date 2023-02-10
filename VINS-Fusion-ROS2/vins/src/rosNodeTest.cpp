@@ -39,6 +39,8 @@ std::mutex m_buf;
 void img0_callback(const sensor_msgs::msg::Image::SharedPtr img_msg)
 {
     m_buf.lock();
+    while (img0_buf.size() > 10)
+        img0_buf.pop();
     // std::cout << "Left : " << img_msg->header.stamp.sec << "." << img_msg->header.stamp.nanosec << endl;
     img0_buf.push(img_msg);
     m_buf.unlock();
@@ -47,6 +49,8 @@ void img0_callback(const sensor_msgs::msg::Image::SharedPtr img_msg)
 void img1_callback(const sensor_msgs::msg::Image::SharedPtr img_msg)
 {
     m_buf.lock();
+    while (img1_buf.size() > 10)
+        img1_buf.pop();
     // std::cout << "Right: " << img_msg->header.stamp.sec << "." << img_msg->header.stamp.nanosec << endl;
     img1_buf.push(img_msg);
     m_buf.unlock();
@@ -83,6 +87,7 @@ void sync_process()
     {
         if(STEREO)
         {
+            std::cout<<"Queue size:"<<img0_buf.size()<<std::endl;
             cv::Mat image0, image1;
             std_msgs::msg::Header header;
             double time = 0;
@@ -308,12 +313,12 @@ int main(int argc, char **argv)
         sub_imu = n->create_subscription<sensor_msgs::msg::Imu>(IMU_TOPIC, rclcpp::QoS(rclcpp::KeepLast(2000)), imu_callback);
     }
     auto sub_feature = n->create_subscription<sensor_msgs::msg::PointCloud>("/feature_tracker/feature", rclcpp::QoS(rclcpp::KeepLast(2000)), feature_callback);
-    auto sub_img0 = n->create_subscription<sensor_msgs::msg::Image>(IMAGE0_TOPIC, rclcpp::QoS(rclcpp::KeepLast(100)), img0_callback);
+    auto sub_img0 = n->create_subscription<sensor_msgs::msg::Image>(IMAGE0_TOPIC, rclcpp::QoS(rclcpp::QoS(5).best_effort()), img0_callback);
     
     rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr sub_img1 = NULL;
     if(STEREO)
     {
-        sub_img1 = n->create_subscription<sensor_msgs::msg::Image>(IMAGE1_TOPIC, rclcpp::QoS(rclcpp::KeepLast(100)), img1_callback);
+        sub_img1 = n->create_subscription<sensor_msgs::msg::Image>(IMAGE1_TOPIC, rclcpp::QoS(rclcpp::QoS(5).best_effort()), img1_callback);
     }
     
     auto sub_restart = n->create_subscription<std_msgs::msg::Bool>("/vins_restart", rclcpp::QoS(rclcpp::KeepLast(100)), restart_callback);

@@ -1,7 +1,7 @@
 pointcloud2_to_gridmap:
   ros__parameters:
     pointcloud_topic: "/stereo/points"
-    map_frame_id: "imu_link"
+    map_frame_id: "base_link"
     filters:
       filter1:  # Fill holes in the map with inpainting.
         name: inpaint
