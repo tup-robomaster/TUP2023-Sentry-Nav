@@ -47,8 +47,8 @@ def generate_launch_description():
     rectify        = LaunchConfiguration('rectify', default = False)
     depth_aligned  = LaunchConfiguration('depth_aligned', default = False)
     manualExposure = LaunchConfiguration('manualExposure', default = True)
-    expTime        = LaunchConfiguration('expTime', default = 3000)
-    sensIso        = LaunchConfiguration('sensIso', default = 1000)
+    expTime        = LaunchConfiguration('expTime', default = 6000)
+    sensIso        = LaunchConfiguration('sensIso', default = 500)
 
     enableSpatialDetection  = LaunchConfiguration('enableSpatialDetection', default = False)
     syncNN                  = LaunchConfiguration('syncNN', default = False)
@@ -72,9 +72,9 @@ def generate_launch_description():
     angularVelCovariance  = LaunchConfiguration('angularVelCovariance', default = 0.0)
     linearAccelCovariance = LaunchConfiguration('linearAccelCovariance', default = 0.0)
 
-    enableDotProjector = LaunchConfiguration('enableDotProjector', default = False)
+    enableDotProjector = LaunchConfiguration('enableDotProjector', default = True)
     enableFloodLight   = LaunchConfiguration('enableFloodLight', default = False)
-    dotProjectormA     = LaunchConfiguration('dotProjectormA', default = 200.0)
+    dotProjectormA     = LaunchConfiguration('dotProjectormA', default = 120.0)
     floodLightmA       = LaunchConfiguration('floodLightmA', default = 0.0)
     enableRviz         = LaunchConfiguration('enableRviz', default = False)
 

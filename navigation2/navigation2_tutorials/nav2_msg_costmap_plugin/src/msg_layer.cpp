@@ -117,8 +117,8 @@ void MsgLayer::callback(const grid_map_msgs::msg::GridMap::SharedPtr msg)
 
     geometry_msgs::msg::TransformStamped tf_projected_stamped;
     tf_projected_stamped.header.stamp = msg->header.stamp;
-    tf_projected_stamped.header.frame_id = "odom";
-    tf_projected_stamped.child_frame_id = "projected";
+    tf_projected_stamped.header.frame_id = global_frame_;
+    tf_projected_stamped.child_frame_id = global_frame_ + "_projected";
     tf_projected_stamped.transform.translation.x = transform_projected_.getOrigin().getX();
     tf_projected_stamped.transform.translation.y = transform_projected_.getOrigin().getY();
     tf_projected_stamped.transform.translation.z = transform_projected_.getOrigin().getZ();
@@ -140,10 +140,10 @@ void MsgLayer::updateBounds(
   double robot_x, double robot_y, double robot_yaw, double * min_x,
   double * min_y, double * max_x, double * max_y)
 {
-    *min_x = robot_x - 5;
-    *max_x = robot_x + 5;
-    *min_y = robot_y - 5;
-    *max_y = robot_y + 5;
+    *min_x = robot_x - 3;
+    *max_x = robot_x + 3;
+    *min_y = robot_y - 3;
+    *max_y = robot_y + 3;
     // // std::cout<<robot_x<<" : "<<robot_y<<" : "<<robot_yaw<<std::endl;
     // if (need_recalculation_)
     // {
@@ -193,7 +193,6 @@ MsgLayer::onFootprintChanged()
 void
 MsgLayer::updateCosts(nav2_costmap_2d::Costmap2D & master_grid, int min_i, int min_j, int max_i, int max_j)
 {
-
     unsigned char * master_array = master_grid.getCharMap();
     unsigned int size_x = master_grid.getSizeInCellsX(), size_y = master_grid.getSizeInCellsY();
     // std::cout<<min_i<<" "<<max_i<<" "<<min_j<<" "<<max_i<<std::endl;
@@ -236,7 +235,7 @@ MsgLayer::updateCosts(nav2_costmap_2d::Costmap2D & master_grid, int min_i, int m
                 if (!std::isnan(elevation) && !std::isnan(slope))
                 {
                     double cost;
-                    if (elevation < 0.1)
+                    if (elevation < 0.1 && elevation > -0.5)
                         cost = 0;
                     else
                         cost = 254;

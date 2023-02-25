@@ -255,7 +255,7 @@ global_costmap:
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
         cost_scaling_factor: 3.0
-        inflation_radius: 0.55
+        inflation_radius: 0.3
       always_send_full_costmap: True
   global_costmap_client:
     ros__parameters:
@@ -308,6 +308,8 @@ recoveries_server:
     robot_base_frame: base_link
     transform_timeout: 0.1
     use_sim_time: true
+    backup_dist: 0.5
+    backup_speed: -0.5
     simulate_ahead_time: 2.0
     max_rotational_vel: 1.0
     min_rotational_vel: 0.4

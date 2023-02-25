@@ -21,6 +21,18 @@
 #include <std_msgs/msg/bool.hpp>
 #include <cv_bridge/cv_bridge.h>
 #include <iostream>
+
+#include <tf2/LinearMath/Quaternion.h>
+#include <tf2/LinearMath/Transform.h>
+#include <tf2/transform_datatypes.h>
+#include <tf2_eigen/tf2_eigen.h>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
+#include <tf2_ros/buffer.h>
+#include <tf2_ros/create_timer_ros.h>
+#include <tf2_ros/message_filter.h>
+#include <tf2_ros/transform_broadcaster.h>
+#include <tf2_ros/transform_listener.h>
+
 // #include <ros/package.h>
 #include <ament_index_cpp/get_package_share_directory.hpp>
 #include <mutex>
@@ -53,7 +65,7 @@ int SKIP_CNT;
 int skip_cnt = 0;
 bool load_flag = 0;
 bool start_flag = 0;
-double SKIP_DIS = 0.1;
+double SKIP_DIS = 0.05;
 
 int VISUALIZATION_SHIFT_X;
 int VISUALIZATION_SHIFT_Y;
@@ -64,6 +76,10 @@ int DEBUG_IMAGE;
 camodocal::CameraPtr m_camera;
 Eigen::Vector3d tic;
 Eigen::Matrix3d qic;
+
+std::shared_ptr<tf2_ros::Buffer> tf_buffer_;
+std::shared_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster_;
+
 rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr pub_match_img;
 rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr pub_camera_pose_visual;
 rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr pub_odometry_rect;
@@ -204,11 +220,34 @@ void vio_callback(const nav_msgs::msg::Odometry::SharedPtr pose_msg)
     vio_q.y() = pose_msg->pose.pose.orientation.y;
     vio_q.z() = pose_msg->pose.pose.orientation.z;
 
+    tf2::Transform transform_odom;
+    transform_odom.setOrigin(tf2::Vector3(vio_t.x(),vio_t.y(),vio_t.z()));
+    transform_odom.setRotation(tf2::Quaternion(vio_q.x(),vio_q.y(),vio_q.z(),vio_q.w()));
+
     vio_t = posegraph.w_r_vio * vio_t + posegraph.w_t_vio;
     vio_q = posegraph.w_r_vio *  vio_q;
 
     vio_t = posegraph.r_drift * vio_t + posegraph.t_drift;
     vio_q = posegraph.r_drift * vio_q;
+
+    tf2::Transform transform_odom_rect;
+    transform_odom_rect.setOrigin(tf2::Vector3(vio_t.x(),vio_t.y(),vio_t.z()));
+    transform_odom_rect.setRotation(tf2::Quaternion(vio_q.x(),vio_q.y(),vio_q.z(),vio_q.w()));
+    tf2::Transform odom_rect_2_odom = transform_odom_rect * transform_odom.inverse();
+
+    geometry_msgs::msg::TransformStamped tf_msg;
+    // std::cout<<pose_msg->header.stamp.sec<<"."<<pose_msg->header.stamp.nanosec<<std::endl;
+    tf_msg.header.stamp = pose_msg->header.stamp;
+    tf_msg.header.frame_id = "odom_rect";
+    tf_msg.child_frame_id = "odom";
+    tf_msg.transform.translation.x = odom_rect_2_odom.getOrigin().getX();
+    tf_msg.transform.translation.y = odom_rect_2_odom.getOrigin().getY();
+    tf_msg.transform.translation.z = odom_rect_2_odom.getOrigin().getZ();
+    tf_msg.transform.rotation.x = odom_rect_2_odom.getRotation().x();
+    tf_msg.transform.rotation.y = odom_rect_2_odom.getRotation().y();
+    tf_msg.transform.rotation.z = odom_rect_2_odom.getRotation().z();
+    tf_msg.transform.rotation.w = odom_rect_2_odom.getRotation().w();
+    // tf_broadcaster_->sendTransform(tf_msg);
 
     nav_msgs::msg::Odometry odometry;
     odometry.header = pose_msg->header;
@@ -415,6 +454,8 @@ int main(int argc, char **argv)
 {
     rclcpp::init(argc, argv);
     auto n = rclcpp::Node::make_shared("loop_fusion");
+    tf_buffer_ = std::make_shared<tf2_ros::Buffer>(n->get_clock());
+    tf_broadcaster_ = std::make_shared<tf2_ros::TransformBroadcaster>(n);
     posegraph.registerPub(n);
     
     VISUALIZATION_SHIFT_X = 0;

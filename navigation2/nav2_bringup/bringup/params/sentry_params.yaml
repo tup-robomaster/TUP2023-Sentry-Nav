@@ -54,7 +54,7 @@ bt_navigator_rclcpp_node:
 controller_server:
   ros__parameters:
     use_sim_time: True
-    controller_frequency: 20.0
+    controller_frequency: 30.0
     min_x_velocity_threshold: 0.001
     min_y_velocity_threshold: 0.5
     min_theta_velocity_threshold: 0.001
@@ -73,7 +73,7 @@ controller_server:
       plugin: "nav2_controller::SimpleGoalChecker"
       xy_goal_tolerance: 0.25
       yaw_goal_tolerance: 0.25
-    # DWB parameters
+    # TEB parameters
     controller_plugins: ["FollowPath"]
     FollowPath:
       plugin: teb_local_planner::TebLocalPlannerROS
@@ -84,51 +84,56 @@ controller_server:
       global_plan_overwrite_orientation: False
       allow_init_with_backwards_motion: False
       max_global_plan_lookahead_dist: 3.0
-      global_plan_viapoint_sep: 0.3
+      global_plan_viapoint_sep: 0.5
       global_plan_prune_distance: 1.0
       exact_arc_length: False
-      feasibility_check_no_poses: 2
+      feasibility_check_no_poses: 0
       publish_feedback: False
           
       # Robot
-      max_vel_x: 1.5
-      max_vel_theta: 0.15 
-      acc_lim_x: 2.5
+      max_vel_x: 2.0
+      # max_vel_x_backwards: -0.5
+      max_vel_y: 2.0
+      max_vel_theta: 0.8
+      acc_lim_x: 4.0
       acc_lim_theta: 1.0
       footprint_model: # types: "point", "circular", "two_circles", "line", "polygon"
+      #   type: "line"
+      #   line_start: [-0.25, 0.0]
+      #   line_end: [0.25, 0.0]
         type: "circular"
-        radius: 0.3 # for type "circular"
+        radius: 0.4 # for type "circular"
       # GoalTolerance
       free_goal_vel: False
       # Obstacles
-      min_obstacle_dist: 0.1
+      min_obstacle_dist: 0.3
       inflation_dist: 0.3
       include_costmap_obstacles: True
-      costmap_obstacles_behind_robot_dist: 1.0
+      costmap_obstacles_behind_robot_dist: 1.5
       obstacle_poses_affected: 15
       dynamic_obstacle_inflation_dist: 0.3
       include_dynamic_obstacles: True 
       costmap_converter_plugin: "costmap_converter::CostmapToPolygonsDBSMCCH"
       costmap_converter_spin_thread: True
-      costmap_converter_rate: 5
+      costmap_converter_rate: 10
       # Optimization
-      no_inner_iterations: 5
+      no_inner_iterations: 4
       no_outer_iterations: 4
       optimization_activate: True
       optimization_verbose: False
       penalty_epsilon: 0.1
       obstacle_cost_exponent: 4.0
-      weight_max_vel_x: 0.5
+      weight_max_vel_x: 0.7
       weight_max_vel_theta: 0.5
       weight_acc_lim_x: 0.5
       weight_acc_lim_theta: 10.5
-      weight_kinematics_nh: 1000.0
-      weight_kinematics_forward_drive: 3.0
-      weight_kinematics_turning_radius: 1.0
-      weight_optimaltime: 1.0 # must be > 0
-      weight_shortest_path: 0.0
+      weight_kinematics_nh: 15.0
+      weight_kinematics_forward_drive: 300.0
+      weight_kinematics_turning_radius: 0.5
+      weight_optimaltime: 2.0 # must be > 0
+      weight_shortest_path: 0.5
       weight_obstacle: 100.0
-      weight_inflation: 0.3
+      weight_inflation: 0.5
       weight_dynamic_obstacle: 10.0 # not in use yet
       weight_dynamic_obstacle_inflation: 0.2
       weight_viapoint: 50.0
@@ -137,7 +142,7 @@ controller_server:
       # Homotopy Class Planner
 
       enable_homotopy_class_planning: True
-      enable_multithreading: True
+      enable_multithreading: False
       max_number_classes: 4
       selection_cost_hysteresis: 5.0
       selection_prefer_initial_plan: 1.0
@@ -174,7 +179,7 @@ controller_server_rclcpp_node:
 local_costmap:
   local_costmap:
     ros__parameters:
-      update_frequency: 5.0
+      update_frequency: 10.0
       publish_frequency: 10.0
       global_frame: odom
       robot_base_frame: base_link
@@ -184,7 +189,7 @@ local_costmap:
       width: 5
       height: 5
       resolution: 0.05
-      robot_radius: 0.2
+      robot_radius: 0.4
       plugins: ["msg_layer", "inflation_layer"]
       msg_layer:
         plugin: "nav2_msg_costmap_plugin::MsgLayer"
@@ -204,22 +209,26 @@ local_costmap:
 global_costmap:
   global_costmap:
     ros__parameters:
-      update_frequency: 1.0
-      publish_frequency: 1.0
+      update_frequency: 5.0
+      publish_frequency: 5.0
       global_frame: map
       robot_base_frame: base_link
       use_sim_time: True
-      robot_radius: 0.3
+      robot_radius: 0.4
       resolution: 0.05
       track_unknown_space: true
-      plugins: ["static_layer", "inflation_layer"]
+      plugins: ["static_layer","msg_layer","inflation_layer"]
       static_layer:
         plugin: "nav2_costmap_2d::StaticLayer"
         map_subscribe_transient_local: True
+      msg_layer:
+        plugin: "nav2_msg_costmap_plugin::MsgLayer"
+        map_topic: "grid_map"
+        global_frame: map
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
         cost_scaling_factor: 3.0
-        inflation_radius: 0.1
+        inflation_radius: 0.35
       always_send_full_costmap: True
   global_costmap_client:
     ros__parameters:
@@ -231,7 +240,7 @@ global_costmap:
 map_server:
   ros__parameters:
     use_sim_time: True
-    yaml_filename: "/home/tup/ros2_ws/src/TUP2023-Sentry-Framework/TUP2023-Sentry-Nav/navigation2/nav2_bringup/bringup/maps/hall.yaml"
+    yaml_filename: "/home/tup/ros2_ws/src/TUP2023-Sentry-Framework/TUP2023-Sentry-Nav/navigation2/nav2_bringup/bringup/maps/133_out.yaml"
 
 map_saver:
   ros__parameters:
@@ -243,13 +252,13 @@ map_saver:
 
 planner_server:
   ros__parameters:
-    expected_planner_frequency: 20.0
+    expected_planner_frequency: 10.0
     use_sim_time: True
     planner_plugins: ["GridBased"]
     GridBased:
       plugin: "nav2_navfn_planner/NavfnPlanner"
       tolerance: 0.5
-      use_astar: false
+      use_astar: true
       allow_unknown: true
 
 planner_server_rclcpp_node:

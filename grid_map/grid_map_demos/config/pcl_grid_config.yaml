@@ -16,7 +16,7 @@ pcl_grid_map_extraction:
     max_num_points: 1000000
   outlier_removal:
     is_remove_outliers: true
-    mean_K: 8
+    mean_K: 14
     stddev_threshold: 0.1
   downsampling:
     is_downsample_cloud: true

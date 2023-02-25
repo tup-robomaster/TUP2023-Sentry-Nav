@@ -378,11 +378,11 @@ int PoseGraph::detectLoop(KeyFrame* keyframe, int frame_index)
         }
     }
     // a good match with its nerghbour
-    if (ret.size() >= 1 && ret[0].Score > 0.02)
+    if (ret.size() >= 1 && ret[0].Score > 0.01)
         for (unsigned int i = 1; i < ret.size(); i++)
         {
             //if (ret[i].Score > ret[0].Score * 0.3)
-            if (ret[i].Score > 0.015 && (frame_index - ret[i].Id) > 1)
+            if (ret[i].Score > 0.01 && (frame_index - ret[i].Id) > 5)
             {          
                 find_loop = true;
                 int tmp_index = ret[i].Id;
@@ -403,12 +403,12 @@ int PoseGraph::detectLoop(KeyFrame* keyframe, int frame_index)
         cv::waitKey(20);
     }
 */
-    if (find_loop && frame_index > 50)
+    if (find_loop && frame_index > 20)
     {
         int min_index = -1;
         for (unsigned int i = 0; i < ret.size(); i++)
         {
-            if (min_index == -1 || (ret[i].Id < min_index && ret[i].Score > 0.015))
+            if (min_index == -1 || (ret[i].Id < min_index && ret[i].Score > 0.01))
                 min_index = ret[i].Id;
         }
         return min_index;
@@ -553,7 +553,7 @@ void PoseGraph::optimize4DoF()
             m_keyframelist.unlock();
 
             ceres::Solve(options, &problem, &summary);
-            //std::cout << summary.BriefReport() << "\n";
+            std::cout << summary.BriefReport() << "\n";
             
             printf("pose optimization time: %f \n", tmp_t.toc());
             for (int j = 0 ; j < i; j++)
@@ -586,9 +586,10 @@ void PoseGraph::optimize4DoF()
             r_drift = Utility::ypr2R(Vector3d(yaw_drift, 0, 0));
             t_drift = cur_t - r_drift * vio_t;
             m_drift.unlock();
-            //cout << "t_drift " << t_drift.transpose() << endl;
-            //cout << "r_drift " << Utility::R2ypr(r_drift).transpose() << endl;
-            //cout << "yaw drift " << yaw_drift << endl;
+            cout<<"New drift datas:  "<<endl;
+            cout << "t_drift " << t_drift.transpose() << endl;
+            cout << "r_drift " << Utility::R2ypr(r_drift).transpose() << endl;
+            cout << "yaw drift " << yaw_drift << endl;
 
             it++;
             for (; it != keyframelist.end(); it++)

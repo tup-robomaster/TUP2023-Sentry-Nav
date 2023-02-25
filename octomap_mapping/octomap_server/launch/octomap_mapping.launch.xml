@@ -11,9 +11,9 @@
 		<param name="resolution" value="0.05" />
 
 		<!-- fixed map frame (set to 'map' if SLAM or localization running!) -->
-		<param name="frame_id" value="odom" />
+		<param name="frame_id" value="odom_rect" />
 		<!-- maximum range to integrate (speedup!) -->
-		<param name="sensor_model.max_range" value="5.0" />
+		<param name="sensor_model.max_range" value="3.0" />
 		<param name="occupancy_min_z" value="-0.1" />
 		<param name="occupancy_max_z" value="3.0" />
 		<!-- data source to integrate (PointCloud2) -->

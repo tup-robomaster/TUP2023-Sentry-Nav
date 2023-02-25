@@ -1519,6 +1519,7 @@ void TemplatedVocabulary<TDescriptor,F>::loadBin(const std::string &filename) {
   
   m_k = voc.k;
   m_L = voc.L;
+  std::cout<<"Vocabulary K : "<<m_k<<", L : "<<m_L<<std::endl;
   m_scoring = (ScoringType)voc.scoringType;
   m_weighting = (WeightingType)voc.weightingType;
   
