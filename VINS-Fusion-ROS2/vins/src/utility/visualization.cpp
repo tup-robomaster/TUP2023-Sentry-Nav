@@ -55,7 +55,7 @@ void registerPub(rclcpp::Node::SharedPtr n)
     cameraposevisual.setLineWidth(0.01);
 }
 
-void pubLatestOdometry(const Eigen::Vector3d &P, const Eigen::Quaterniond &Q, const Eigen::Vector3d &V, double t)
+void pubLatestOdometry(const Eigen::Vector3d &P, const Eigen::Quaterniond &Q, const Eigen::Vector3d &V, const Eigen::Vector3d &gyr, double t)
 {
     nav_msgs::msg::Odometry odometry;
     odometry.header.stamp = rclcpp::Time(t);
@@ -70,6 +70,9 @@ void pubLatestOdometry(const Eigen::Vector3d &P, const Eigen::Quaterniond &Q, co
     odometry.twist.twist.linear.x = V.x();
     odometry.twist.twist.linear.y = V.y();
     odometry.twist.twist.linear.z = V.z();
+    odometry.twist.twist.angular.x = gyr.x();
+    odometry.twist.twist.angular.y = gyr.y();
+    odometry.twist.twist.angular.z = gyr.z();
     pub_latest_odometry->publish(odometry);
 }
 
@@ -127,14 +130,14 @@ void printStatistics(const Estimator &estimator, double t)
         ROS_INFO("td %f", estimator.td);
 }
 
-void pubOdometry(const Estimator &estimator, const std_msgs::msg::Header &header)
+void pubOdometry(const Estimator &estimator, const std_msgs::msg::Header &header, const Eigen::Vector3d &gyr_mean)
 {
     if (estimator.solver_flag == Estimator::SolverFlag::NON_LINEAR)
     {
         nav_msgs::msg::Odometry odometry;
         odometry.header = header;
         odometry.header.frame_id = "odom";
-        odometry.child_frame_id = "odom";
+        odometry.child_frame_id = "base_link";
         Quaterniond tmp_Q;
         tmp_Q = Quaterniond(estimator.Rs[WINDOW_SIZE]);
         odometry.pose.pose.position.x = estimator.Ps[WINDOW_SIZE].x();
@@ -147,6 +150,9 @@ void pubOdometry(const Estimator &estimator, const std_msgs::msg::Header &header
         odometry.twist.twist.linear.x = estimator.Vs[WINDOW_SIZE].x();
         odometry.twist.twist.linear.y = estimator.Vs[WINDOW_SIZE].y();
         odometry.twist.twist.linear.z = estimator.Vs[WINDOW_SIZE].z();
+        odometry.twist.twist.angular.x = gyr_mean.x();
+        odometry.twist.twist.angular.y = gyr_mean.y();
+        odometry.twist.twist.angular.z = gyr_mean.z();
         pub_odometry->publish(odometry);
 
         geometry_msgs::msg::PoseStamped pose_stamped;

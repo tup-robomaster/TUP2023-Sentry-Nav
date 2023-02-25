@@ -239,7 +239,7 @@ void Estimator::inputIMU(double t, const Vector3d &linearAcceleration, const Vec
     {
         mPropagate.lock();
         fastPredictIMU(t, linearAcceleration, angularVelocity);
-        pubLatestOdometry(latest_P, latest_Q, latest_V, t);
+        pubLatestOdometry(latest_P, latest_Q, latest_V, angularVelocity, t);
         mPropagate.unlock();
     }
 }
@@ -318,7 +318,7 @@ void Estimator::processMeasurements()
     // auto t = std::chrono::steady_clock::now();
     while (1)
     {
-
+        Eigen::Vector3d gyr_mean = {0.0,0.0,0.0}; //Mean value of angular_spd, For odom use.
         // cout << "[processMeasurements]  loop - start" << endl;
         pair<double, map<int, vector<pair<int, Eigen::Matrix<double, 7, 1> > > > > feature;
         vector<pair<double, Eigen::Vector3d>> accVector, gyrVector;
@@ -350,6 +350,12 @@ void Estimator::processMeasurements()
             {
                 // cout << "2-1)" << endl;
                 getIMUInterval(prevTime, curTime, accVector, gyrVector);
+                for(auto gyr : gyrVector)
+                {
+                    gyr_mean += gyr.second;
+                }
+                if (gyrVector.size() != 0)
+                    gyr_mean /= gyrVector.size();
                 // for(auto i : accVector)
                 // {
                 //     std::cout<<i.second[0]<<" : "<<i.second[1]<<" : "<<i.second[2]<<" : "<<std::endl;
@@ -405,7 +411,7 @@ void Estimator::processMeasurements()
             header.frame_id = "odom";
             header.stamp = rclcpp::Time(feature.first, (feature.first - (int)feature.first) * 1e9);
 
-            pubOdometry(*this, header);
+            pubOdometry(*this, header, gyr_mean);
             pubKeyPoses(*this, header);
             pubCameraPose(*this, header);
             pubPointCloud(*this, header);

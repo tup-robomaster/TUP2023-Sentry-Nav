@@ -52,13 +52,13 @@ extern int IMAGE_ROW, IMAGE_COL;
 
 void registerPub(rclcpp::Node::SharedPtr n);
 
-void pubLatestOdometry(const Eigen::Vector3d &P, const Eigen::Quaterniond &Q, const Eigen::Vector3d &V, double t);
+void pubLatestOdometry(const Eigen::Vector3d &P, const Eigen::Quaterniond &Q, const Eigen::Vector3d &V, const Eigen::Vector3d &gyr, double t);
 
 void pubTrackImage(const cv::Mat &imgTrack, const double t);
 
 void printStatistics(const Estimator &estimator, double t);
 
-void pubOdometry(const Estimator &estimator, const std_msgs::msg::Header &header);
+void pubOdometry(const Estimator &estimator, const std_msgs::msg::Header &header, const Eigen::Vector3d &gyr_mean);
 
 void pubInitialGuess(const Estimator &estimator, const std_msgs::msg::Header &header);
 
