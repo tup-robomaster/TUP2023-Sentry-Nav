@@ -69,9 +69,11 @@ void MsgLayer::onInitialize()
     auto node = node_.lock(); 
     declareParameter("map_topic", rclcpp::ParameterValue("grid_map"));
     declareParameter("global_frame", rclcpp::ParameterValue("odom"));
+    declareParameter("map_time_decay", rclcpp::ParameterValue(0.2));
     grid_map_ = std::make_shared<grid_map::GridMap>();
     node->get_parameter(name_ + "." + "map_topic", map_topic_);
     node->get_parameter(name_ + "." + "global_frame", global_frame_);
+    node->get_parameter(name_ + "." + "map_time_decay", time_decay_);
     tf_buffer_ = std::make_shared<tf2_ros::Buffer>(node->get_clock());
     tf_broadcaster_ = std::make_shared<tf2_ros::TransformBroadcaster>(rclcpp_node_);
     tf_listener_ = std::make_shared<tf2_ros::TransformListener>(*tf_buffer_);
@@ -86,12 +88,13 @@ void MsgLayer::onInitialize()
 
 void MsgLayer::callback(const grid_map_msgs::msg::GridMap::SharedPtr msg)
 {
+    auto t1 = std::chrono::steady_clock::now();
     auto frame_id = msg->header.frame_id;
     tf2::Transform transform;
     geometry_msgs::msg::TransformStamped tf_msg;
     try
     {
-        tf_msg = tf_buffer_->lookupTransform(global_frame_, frame_id, msg->header.stamp, rclcpp::Duration::from_seconds(0.1));
+        tf_msg = tf_buffer_->lookupTransform(global_frame_, frame_id, msg->header.stamp, rclcpp::Duration::from_seconds(0.2));
         tf2::convert(tf_msg.transform, transform);
     }
     catch (const tf2::TransformException &ex)
@@ -99,22 +102,18 @@ void MsgLayer::callback(const grid_map_msgs::msg::GridMap::SharedPtr msg)
         RCLCPP_ERROR(rclcpp_node_->get_logger(), "%s",ex.what());
         return;
     }
+    auto t2 = std::chrono::steady_clock::now();
     //Get euler angle of rotation and set a new transform only with yaw
     double roll,pitch,yaw;
     tf2::Vector3 origin;
     transform.getBasis().getRPY(roll,pitch,yaw);
     origin = transform.getOrigin();
-
-    // std::cout<<"RPY:"<<roll * 180 / 3.1415<<" : "<<pitch * 180 / 3.1415<<" : "<<yaw * 180 / 3.1415<<std::endl;
-
     tf2::Quaternion q_projected;
     q_projected.setRPY(0,0,yaw);
     origin.setZ(0);
-
     map_lock_.lock();
     transform_projected_.setRotation(q_projected);
     transform_projected_.setOrigin(origin);
-
     geometry_msgs::msg::TransformStamped tf_projected_stamped;
     tf_projected_stamped.header.stamp = msg->header.stamp;
     tf_projected_stamped.header.frame_id = global_frame_;
@@ -126,8 +125,49 @@ void MsgLayer::callback(const grid_map_msgs::msg::GridMap::SharedPtr msg)
     tf_projected_stamped.transform.rotation.y = transform_projected_.getRotation().y();
     tf_projected_stamped.transform.rotation.z = transform_projected_.getRotation().z();
     tf_projected_stamped.transform.rotation.w = transform_projected_.getRotation().w();
+    geometry_msgs::msg::TransformStamped tf_projected_stamped_inverse;
+    tf_projected_stamped_inverse.transform.translation.x = transform_projected_.inverse().getOrigin().getX();
+    tf_projected_stamped_inverse.transform.translation.y = transform_projected_.inverse().getOrigin().getY();
+    tf_projected_stamped_inverse.transform.translation.z = transform_projected_.inverse().getOrigin().getZ();
+    tf_projected_stamped_inverse.transform.rotation.x = transform_projected_.inverse().getRotation().x();
+    tf_projected_stamped_inverse.transform.rotation.y = transform_projected_.inverse().getRotation().y();
+    tf_projected_stamped_inverse.transform.rotation.z = transform_projected_.inverse().getRotation().z();
+    tf_projected_stamped_inverse.transform.rotation.w = transform_projected_.inverse().getRotation().w();
     tf_broadcaster_->sendTransform(tf_projected_stamped);
-    grid_map::GridMapRosConverter::fromMessage(*msg, *grid_map_);
+    grid_map::GridMap grid_map;
+    grid_map::GridMapRosConverter::fromMessage(*msg, grid_map);
+    auto map_ptr = std::make_shared<grid_map::GridMap>(grid_map.getTransformedMap(tf2::transformToEigen(tf_projected_stamped.transform),
+                                                                                                                "elevation", global_frame_));
+    map_ptr->add("slope",grid_map.getTransformedMap(tf2::transformToEigen(tf_projected_stamped.transform),"slope", global_frame_)["slope"]);
+    double timestamp=msg->header.stamp.sec + 1e-9 * msg->header.stamp.nanosec;
+    //Erase Map out of time decay.
+    std::vector<std::shared_ptr<grid_map::GridMap>> grid_map_vec_tmp;
+    std::vector<double> grid_map_timestamp_tmp;
+
+    for (int i=0; i<grid_map_timestamp.size(); i++)
+    {
+        if (abs(timestamp - grid_map_timestamp[i]) < time_decay_)
+        {
+            grid_map_vec_tmp.push_back(grid_map_vec[i]);
+            grid_map_timestamp_tmp.push_back(grid_map_timestamp[i]);
+        }
+    }
+
+    grid_map_vec = grid_map_vec_tmp;
+    grid_map_timestamp = grid_map_timestamp_tmp;
+    grid_map_ = map_ptr;
+    auto t4 = std::chrono::steady_clock::now();
+    if (grid_map_vec.size() > 0)
+    {
+        for (int i=0; i < grid_map_vec.size();i++)
+        {
+            grid_map_->addDataFrom(*grid_map_vec[i],true,false,true);
+        }
+    }
+    grid_map_vec.emplace_back(map_ptr);
+    grid_map_timestamp.push_back(timestamp);
+    auto t3 = std::chrono::steady_clock::now();
+    // std::cout<<"t1: "<<(float)(std::chrono::duration<double,std::milli>(t2 - t1).count())<<std::endl;
     map_lock_.unlock();
 
     //TODO: Mapping
@@ -216,11 +256,7 @@ MsgLayer::updateCosts(nav2_costmap_2d::Costmap2D & master_grid, int min_i, int m
         {
             double worldx, worldy;
             master_grid.mapToWorld(i,j,worldx,worldy);
-            tf2::Transform coordinate_world;
-            coordinate_world.setOrigin(tf2::Vector3(worldx,worldy,0));
-            coordinate_world.setRotation(tf2::Quaternion(0,0,0,1));
-            tf2::Transform coordinate_grid = transform_projected_.inverse() * coordinate_world;
-            Eigen::Vector2d vec2d_map(coordinate_grid.getOrigin().getX(), coordinate_grid.getOrigin().getY());
+            Eigen::Vector2d vec2d_map(worldx,worldy);
             Eigen::Array2i idx_map;
             int index = master_grid.getIndex(i, j);
             // if (vec2d_map[1] < 0.2 && vec2d_map[1] > -0.2)

@@ -47,8 +47,10 @@ def generate_launch_description():
     rectify        = LaunchConfiguration('rectify', default = False)
     depth_aligned  = LaunchConfiguration('depth_aligned', default = False)
     manualExposure = LaunchConfiguration('manualExposure', default = True)
-    expTime        = LaunchConfiguration('expTime', default = 6000)
+    expTime        = LaunchConfiguration('expTime', default = 5000)
     sensIso        = LaunchConfiguration('sensIso', default = 500)
+    # expTime        = LaunchConfiguration('expTime', default = 3000)
+    # sensIso        = LaunchConfiguration('sensIso', default = 100)
 
     enableSpatialDetection  = LaunchConfiguration('enableSpatialDetection', default = False)
     syncNN                  = LaunchConfiguration('syncNN', default = False)

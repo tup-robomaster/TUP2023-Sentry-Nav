@@ -54,9 +54,9 @@ bt_navigator_rclcpp_node:
 controller_server:
   ros__parameters:
     use_sim_time: True
-    controller_frequency: 30.0
+    controller_frequency: 20.0
     min_x_velocity_threshold: 0.001
-    min_y_velocity_threshold: 0.5
+    min_y_velocity_threshold: 0.1
     min_theta_velocity_threshold: 0.001
     failure_tolerance: 0.3
     progress_checker_plugin: "progress_checker"
@@ -79,22 +79,22 @@ controller_server:
       plugin: teb_local_planner::TebLocalPlannerROS
       teb_autosize: 1.0
       dt_ref: 0.3
-      dt_hysteresis: 0.03
+      dt_hysteresis: 0.04
       max_samples: 500
       global_plan_overwrite_orientation: False
       allow_init_with_backwards_motion: False
       max_global_plan_lookahead_dist: 3.0
-      global_plan_viapoint_sep: 0.5
+      global_plan_viapoint_sep: 1.0
       global_plan_prune_distance: 1.0
       exact_arc_length: False
       feasibility_check_no_poses: 0
       publish_feedback: False
           
       # Robot
-      max_vel_x: 2.0
-      # max_vel_x_backwards: -0.5
-      max_vel_y: 2.0
-      max_vel_theta: 0.8
+      max_vel_x: 3.5
+      max_vel_x_backwards: -0.5
+      max_vel_y: 3.5
+      max_vel_theta: 1.0
       acc_lim_x: 4.0
       acc_lim_theta: 1.0
       footprint_model: # types: "point", "circular", "two_circles", "line", "polygon"
@@ -106,10 +106,10 @@ controller_server:
       # GoalTolerance
       free_goal_vel: False
       # Obstacles
-      min_obstacle_dist: 0.3
-      inflation_dist: 0.3
+      min_obstacle_dist: 0.35
+      inflation_dist: 0.6
       include_costmap_obstacles: True
-      costmap_obstacles_behind_robot_dist: 1.5
+      costmap_obstacles_behind_robot_dist: 2.0
       obstacle_poses_affected: 15
       dynamic_obstacle_inflation_dist: 0.3
       include_dynamic_obstacles: True 
@@ -123,20 +123,20 @@ controller_server:
       optimization_verbose: False
       penalty_epsilon: 0.1
       obstacle_cost_exponent: 4.0
-      weight_max_vel_x: 0.7
-      weight_max_vel_theta: 0.5
-      weight_acc_lim_x: 0.5
-      weight_acc_lim_theta: 10.5
-      weight_kinematics_nh: 15.0
-      weight_kinematics_forward_drive: 300.0
+      weight_max_vel_x: 1.5
+      weight_max_vel_theta: 1.0
+      weight_acc_lim_x: 0.7
+      weight_acc_lim_theta: 5.0
+      weight_kinematics_nh: 20.0
+      weight_kinematics_forward_drive: 10000.0
       weight_kinematics_turning_radius: 0.5
-      weight_optimaltime: 2.0 # must be > 0
-      weight_shortest_path: 0.5
-      weight_obstacle: 100.0
-      weight_inflation: 0.5
+      weight_optimaltime: 20.0 # must be > 0
+      weight_shortest_path: 0.1
+      weight_obstacle: 250.0
+      weight_inflation: 15.0
       weight_dynamic_obstacle: 10.0 # not in use yet
       weight_dynamic_obstacle_inflation: 0.2
-      weight_viapoint: 50.0
+      weight_viapoint: 80.0
       weight_adapt_factor: 2.0
 
       # Homotopy Class Planner
@@ -198,7 +198,7 @@ local_costmap:
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
         cost_scaling_factor: 3.0
-        inflation_radius: 0.1
+        inflation_radius: 0.2
   local_costmap_client:
     ros__parameters:
       use_sim_time: True
@@ -258,7 +258,7 @@ planner_server:
     GridBased:
       plugin: "nav2_navfn_planner/NavfnPlanner"
       tolerance: 0.5
-      use_astar: true
+      use_astar: false
       allow_unknown: true
 
 planner_server_rclcpp_node:
@@ -269,7 +269,7 @@ recoveries_server:
   ros__parameters:
     costmap_topic: local_costmap/costmap_raw
     footprint_topic: local_costmap/published_footprint
-    cycle_frequency: 10.0
+    cycle_frequency: 15.0
     recovery_plugins: ["spin", "backup", "wait"]
     spin:
       plugin: "nav2_recoveries/Spin"
@@ -285,6 +285,7 @@ recoveries_server:
     max_rotational_vel: 1.0
     min_rotational_vel: 0.4
     rotational_acc_lim: 3.2
+
 
 robot_state_publisher:
   ros__parameters:

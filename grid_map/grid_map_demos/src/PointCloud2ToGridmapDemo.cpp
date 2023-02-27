@@ -97,13 +97,13 @@ void PointCloud2ToGridmapDemo::pointCloud2Callback(const sensor_msgs::msg::Point
     range_cond->addComparison(pcl::FieldComparison<pcl::PointXYZ>::ConstPtr(
             new pcl::FieldComparison<pcl::PointXYZ>("z", pcl::ComparisonOps::LT, 4)));
     range_cond->addComparison(pcl::FieldComparison<pcl::PointXYZ>::ConstPtr(
-            new pcl::FieldComparison<pcl::PointXYZ>("z", pcl::ComparisonOps::GT, 0.1)));
+            new pcl::FieldComparison<pcl::PointXYZ>("z", pcl::ComparisonOps::GT, 0.05)));
     range_cond->addComparison(pcl::FieldComparison<pcl::PointXYZ>::ConstPtr(
             new pcl::FieldComparison<pcl::PointXYZ>("x", pcl::ComparisonOps::LT, 3.0)));
     range_cond->addComparison(pcl::FieldComparison<pcl::PointXYZ>::ConstPtr(
             new pcl::FieldComparison<pcl::PointXYZ>("x", pcl::ComparisonOps::GT, -3.0)));
     range_cond->addComparison(pcl::FieldComparison<pcl::PointXYZ>::ConstPtr(
-            new pcl::FieldComparison<pcl::PointXYZ>("y", pcl::ComparisonOps::LT, 1)));
+            new pcl::FieldComparison<pcl::PointXYZ>("y", pcl::ComparisonOps::LT, 0.5)));
     range_cond->addComparison(pcl::FieldComparison<pcl::PointXYZ>::ConstPtr(
             new pcl::FieldComparison<pcl::PointXYZ>("y", pcl::ComparisonOps::GT, -0.5)));
     condrem.setCondition(range_cond);
@@ -157,6 +157,7 @@ void PointCloud2ToGridmapDemo::pointCloud2Callback(const sensor_msgs::msg::Point
     std::cout<<"t4: "<<(float)(std::chrono::duration<double,std::milli>(t5 - t1).count())<<std::endl;
     std::cout<<"t5: "<<(float)(std::chrono::duration<double,std::milli>(t6 - t1).count())<<std::endl;
     auto message = grid_map::GridMapRosConverter::toMessage(outputMap);
+    message->header.stamp = msg->header.stamp;
     gridMapPublisher_->publish(std::move(message));
 }
 

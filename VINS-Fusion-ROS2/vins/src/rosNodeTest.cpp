@@ -39,7 +39,7 @@ std::mutex m_buf;
 void img0_callback(const sensor_msgs::msg::Image::SharedPtr img_msg)
 {
     m_buf.lock();
-    while (img0_buf.size() > 10)
+    while (img0_buf.size() > 5)
         img0_buf.pop();
     // std::cout << "Left : " << img_msg->header.stamp.sec << "." << img_msg->header.stamp.nanosec << endl;
     img0_buf.push(img_msg);
@@ -49,7 +49,7 @@ void img0_callback(const sensor_msgs::msg::Image::SharedPtr img_msg)
 void img1_callback(const sensor_msgs::msg::Image::SharedPtr img_msg)
 {
     m_buf.lock();
-    while (img1_buf.size() > 10)
+    while (img1_buf.size() > 5)
         img1_buf.pop();
     // std::cout << "Right: " << img_msg->header.stamp.sec << "." << img_msg->header.stamp.nanosec << endl;
     img1_buf.push(img_msg);

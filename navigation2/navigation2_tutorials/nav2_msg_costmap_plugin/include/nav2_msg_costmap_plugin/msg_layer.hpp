@@ -49,6 +49,7 @@
 
 //TF
 #include <tf2/transform_datatypes.h>
+#include <tf2_eigen/tf2_eigen.h>
 #include <tf2_ros/buffer.h>
 #include <tf2_ros/transform_listener.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
@@ -95,10 +96,13 @@ private:
 
   std::string map_topic_;
   std::string global_frame_;
+  float time_decay_;
   std::shared_ptr<tf2_ros::Buffer> tf_buffer_;
   std::shared_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster_;
   std::shared_ptr<tf2_ros::TransformListener> tf_listener_;
   std::shared_ptr<grid_map::GridMap> grid_map_;
+  std::vector<std::shared_ptr<grid_map::GridMap>> grid_map_vec;
+  std::vector<double> grid_map_timestamp;
   tf2::Transform transform_projected_;
   std::mutex map_lock_;
   rclcpp::Subscription<grid_map_msgs::msg::GridMap>::SharedPtr subscriber_;

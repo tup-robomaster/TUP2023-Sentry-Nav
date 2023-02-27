@@ -29,7 +29,7 @@ find_package(pluginlib REQUIRED)
 find_package(grid_map_core REQUIRED)
 find_package(grid_map_ros REQUIRED)
 find_package(grid_map_msgs REQUIRED)
-
+find_package(tf2_eigen REQUIRED)
 set(dep_pkgs
     rclcpp
     nav2_costmap_2d
@@ -39,6 +39,7 @@ set(dep_pkgs
     grid_map_msgs
     tf2
     tf2_ros
+    tf2_eigen
     pluginlib)
 
 # === Build ===

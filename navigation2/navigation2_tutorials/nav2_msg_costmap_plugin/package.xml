@@ -15,7 +15,7 @@
   <depend>nav2_costmap_2d</depend>
   <depend>pluginlib</depend>
   <depend>rclcpp</depend>
-
+  <depend>tf2_eigen</depend>
   <export>
     <costmap_2d plugin="${prefix}/msg_layer.xml" />
     <build_type>ament_cmake</build_type>
