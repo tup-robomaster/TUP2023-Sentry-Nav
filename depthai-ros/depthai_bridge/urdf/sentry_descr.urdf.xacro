@@ -32,6 +32,7 @@
         <child link="gimbal_yaw_frame"/>
         <limit effort="30" velocity="10.0" lower="-3.14" upper="3.14" />
     </joint>
+
     <!-- Pitch axis of robot -->
     <link name="gimbal_pitch_frame"/>
     <joint name="gimbal_pitch_joint" type="revolute">
@@ -41,6 +42,14 @@
         <child link="gimbal_pitch_frame"/>
         <limit effort="30" velocity="10.0" lower="-3.14" upper="3.14" />
     </joint>
+
+    <link name="daheng_img_frame"/>
+    <joint name="daheng_joint" type="fixed">
+        <parent link="gimbal_pitch_frame"/>
+        <child link="daheng_img_frame"/>
+        <origin xyz="0.1 0 0.05" rpy="-1.57 0 -1.57" />
+    </joint>
+
     <joint name="$(arg camera_name)_center_joint" type="fixed">
         <parent link="gimbal_yaw_frame"/>
         <child link="$(arg base_frame)"/>

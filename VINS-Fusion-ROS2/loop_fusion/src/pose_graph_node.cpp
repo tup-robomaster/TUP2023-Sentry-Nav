@@ -247,7 +247,7 @@ void vio_callback(const nav_msgs::msg::Odometry::SharedPtr pose_msg)
     tf_msg.transform.rotation.y = odom_rect_2_odom.getRotation().y();
     tf_msg.transform.rotation.z = odom_rect_2_odom.getRotation().z();
     tf_msg.transform.rotation.w = odom_rect_2_odom.getRotation().w();
-    // tf_broadcaster_->sendTransform(tf_msg);
+    tf_broadcaster_->sendTransform(tf_msg);
 
     nav_msgs::msg::Odometry odometry;
     odometry.header = pose_msg->header;

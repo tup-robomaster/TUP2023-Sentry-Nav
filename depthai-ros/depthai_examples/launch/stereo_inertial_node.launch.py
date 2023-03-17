@@ -45,17 +45,17 @@ def generate_launch_description():
     extended       = LaunchConfiguration('extended', default = False)
     subpixel       = LaunchConfiguration('subpixel', default = True)
     rectify        = LaunchConfiguration('rectify', default = False)
-    depth_aligned  = LaunchConfiguration('depth_aligned', default = False)
+    depth_aligned  = LaunchConfiguration('depth_aligned', default = True)
     manualExposure = LaunchConfiguration('manualExposure', default = True)
-    expTime        = LaunchConfiguration('expTime', default = 5000)
-    sensIso        = LaunchConfiguration('sensIso', default = 500)
-    # expTime        = LaunchConfiguration('expTime', default = 3000)
-    # sensIso        = LaunchConfiguration('sensIso', default = 100)
+    # expTime        = LaunchConfiguration('expTime', default = 5000)
+    # sensIso        = LaunchConfiguration('sensIso', default = 500)
+    expTime        = LaunchConfiguration('expTime', default = 2000)
+    sensIso        = LaunchConfiguration('sensIso', default = 100)
 
-    enableSpatialDetection  = LaunchConfiguration('enableSpatialDetection', default = False)
-    syncNN                  = LaunchConfiguration('syncNN', default = False)
-    detectionClassesCount   = LaunchConfiguration('detectionClassesCount', default = 80)
-    nnName                  = LaunchConfiguration('nnName', default = 'x')
+    enableSpatialDetection  = LaunchConfiguration('enableSpatialDetection', default = True)
+    syncNN                  = LaunchConfiguration('syncNN', default = True)
+    detectionClassesCount   = LaunchConfiguration('detectionClassesCount', default = 36)
+    nnName                  = LaunchConfiguration('nnName', default = 'yolov5n.blob')
     resourceBaseFolder      = LaunchConfiguration('resourceBaseFolder', default = default_resources_path)
 
 
@@ -67,8 +67,8 @@ def generate_launch_description():
     rgbResolution           = LaunchConfiguration('rgbResolution',  default = '1080p')
     rgbScaleNumerator       = LaunchConfiguration('rgbScaleNumerator',  default = 2)
     rgbScaleDinominator     = LaunchConfiguration('rgbScaleDinominator',    default = 3)
-    previewWidth            = LaunchConfiguration('previewWidth',   default = 416)
-    previewHeight           = LaunchConfiguration('previewHeight',  default = 416)
+    previewWidth            = LaunchConfiguration('previewWidth',   default = 640)
+    previewHeight           = LaunchConfiguration('previewHeight',  default = 480)
     
     
     angularVelCovariance  = LaunchConfiguration('angularVelCovariance', default = 0.0)
@@ -323,7 +323,7 @@ def generate_launch_description():
         package="tf2_ros",
         executable="static_transform_publisher",
         output="screen" ,
-        arguments=["0.0", "0", "0", "0", "0", "0", "map", "odom"]
+        arguments=["0.0", "0", "0", "0", "0", "0", "map", "odom_rect"]
     )
 
     stereo_node = launch_ros.actions.Node(
@@ -363,6 +363,7 @@ def generate_launch_description():
                         {'enableSpatialDetection':  enableSpatialDetection},
                         {'detectionClassesCount':   detectionClassesCount},
                         {'syncNN':                  syncNN},
+                        {'nnName':                  nnName},
                         
                         {'enableDotProjector':      enableDotProjector},
                         {'enableFloodLight':        enableFloodLight},
