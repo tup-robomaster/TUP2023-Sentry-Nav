@@ -91,11 +91,11 @@ controller_server:
       publish_feedback: False
           
       # Robot
-      max_vel_x: 3.5
+      max_vel_x: 1.0
       max_vel_x_backwards: -0.5
-      max_vel_y: 3.5
-      max_vel_theta: 1.0
-      acc_lim_x: 4.0
+      max_vel_y: 1.0
+      max_vel_theta: 0.5
+      acc_lim_x: 1.0
       acc_lim_theta: 1.0
       footprint_model: # types: "point", "circular", "two_circles", "line", "polygon"
       #   type: "line"
@@ -136,7 +136,7 @@ controller_server:
       weight_inflation: 15.0
       weight_dynamic_obstacle: 10.0 # not in use yet
       weight_dynamic_obstacle_inflation: 0.2
-      weight_viapoint: 80.0
+      weight_viapoint: 100.0
       weight_adapt_factor: 2.0
 
       # Homotopy Class Planner
@@ -228,7 +228,7 @@ global_costmap:
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
         cost_scaling_factor: 3.0
-        inflation_radius: 0.35
+        inflation_radius: 0.2
       always_send_full_costmap: True
   global_costmap_client:
     ros__parameters:

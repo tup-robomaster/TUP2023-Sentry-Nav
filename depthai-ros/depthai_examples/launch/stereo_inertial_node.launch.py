@@ -38,7 +38,7 @@ def generate_launch_description():
     cam_pos_y    = LaunchConfiguration('cam_pos_y',     default = '0.0')
     cam_pos_z    = LaunchConfiguration('cam_pos_z',     default = '0.1')
     cam_roll     = LaunchConfiguration('cam_roll',      default = '0.0')
-    cam_pitch    = LaunchConfiguration('cam_pitch',     default = '0.0')
+    cam_pitch    = LaunchConfiguration('cam_pitch',     default = '0.1745')
     cam_yaw      = LaunchConfiguration('cam_yaw',       default = '0.0')
 
     lrcheck        = LaunchConfiguration('lrcheck', default = True)
@@ -49,7 +49,7 @@ def generate_launch_description():
     manualExposure = LaunchConfiguration('manualExposure', default = True)
     # expTime        = LaunchConfiguration('expTime', default = 5000)
     # sensIso        = LaunchConfiguration('sensIso', default = 500)
-    expTime        = LaunchConfiguration('expTime', default = 2000)
+    expTime        = LaunchConfiguration('expTime', default = 3000)
     sensIso        = LaunchConfiguration('sensIso', default = 100)
 
     enableSpatialDetection  = LaunchConfiguration('enableSpatialDetection', default = True)
