@@ -349,7 +349,7 @@ int PoseGraph::detectLoop(KeyFrame* keyframe, int frame_index)
     //first query; then add this frame into database!
     QueryResults ret;
     TicToc t_query;
-    db.query(keyframe->brief_descriptors, ret, 4, frame_index - 50);
+    db.query(keyframe->brief_descriptors, ret, 4, frame_index - 25);
     printf("query time: %f\n", t_query.toc());
     cout << "Searching for Image " << frame_index << ". " << ret << endl;
 
@@ -470,7 +470,7 @@ void PoseGraph::optimize4DoF()
             options.max_num_iterations = 5;
             ceres::Solver::Summary summary;
             ceres::LossFunction *loss_function;
-            loss_function = new ceres::HuberLoss(0.1);
+            loss_function = new ceres::HuberLoss(0.5);
             //loss_function = new ceres::CauchyLoss(1.0);
             ceres::LocalParameterization* angle_local_parameterization =
                 AngleLocalParameterization::Create();
