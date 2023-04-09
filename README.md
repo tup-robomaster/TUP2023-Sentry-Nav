@@ -23,25 +23,26 @@ grid_map库是一个带有ROS接口的C++库，用于管理具有多个数据层
 |3D LSLAM|3D激光雷达|4000+|可提供3维里程计信息|价格昂贵|
 根据实验室已有资源，我们对以上三种方案进行了一定限度的实验.
 #### 3.1.1 2D LSLAM
-`设备`:SLAMTEC RPLIDARA2 + WT61PCTTL IMU
-`建图算法`:Cartographer
-`里程计`:laser_scan_matcher
-`定位\重定位算法`:AMCL
+`设备`:SLAMTEC RPLIDARA2 + WT61PCTTL IMU  
+`建图算法`:Cartographer  
+`里程计`:laser_scan_matcher  
+`定位\重定位算法`:AMCL  
 
 2D LSLAM是RMUA中较为常用的定位方案，经过我们的实验，该方法也确实展现出了较强的鲁棒性.但较为遗憾的是,该方法主要只适用于2维环境，对于RMUC这种复杂的2.5D环境不甚适用，如若在比赛中使用该方法，可能无法进行自主导航上坡或类似的行为.因此该方法不应被选为主要方案，只可发挥辅助作用.
 #### 3.1.2 3D LSLAM
-`设备`:Livox Mid-70
-`建图算法`:LIO-Livox 
-`里程计`:LIO-Livox
+`设备`:Livox Mid-70  
+`建图算法`:LIO-Livox   
+`里程计`:LIO-Livox  
 
 3D LSLAM具有较为优秀的建图精度.对RM场景也十分友好.但缺点也很明显，就是价格较为昂贵.在我们在2022下半年测试时仍旧没有较为便宜的全向三维激光雷达，因此我们选用的是Mid-70进行测试.
 Mid-70的建图精度相当优秀，但缺少内置IMU，里程计无法使用IMU数据.最重要的是该雷达的FOV相当受限，只有70度，这会使得导航相当难以处理车辆侧方的障碍，极易出现擦边的情况.
 受限于捉襟见肘的资金，我们只能忍痛放弃了3D LSLAM方案.
 #### 3.1.3 VSLAM
-`设备`:Intel Realsense D435
-`建图算法`:octomap_mapping
-`里程计`:VINS-Fusion
-`定位\重定位算法`:VINS-Fusion(loop fusion)
+`设备`:Intel Realsense D435  
+`建图算法`:octomap_mapping  
+`里程计`:VINS-Fusion  
+`定位\重定位算法`:VINS-Fusion(loop fusion)  
+
 VSLAM相较于3DSLAM而言效果略逊一筹，且重定位的问题仅靠回环检测较难以解决.但是深度相机的价格相对于高端的3维激光雷达而言较为低廉.且也可以获取点云信息
 .可以处理上坡的情况.视角的问题可以通过使用广角镜头来一定程度上缓解.
 
