@@ -28,8 +28,6 @@ find_package(Eigen3)
 
 include_directories( ${CERES_INCLUDE_DIRS}  ${EIGEN3_INCLUDE_DIR}) #${catkin_INCLUDE_DIRS})
 
-
-
 add_executable(loop_fusion_node
     src/pose_graph_node.cpp
     src/pose_graph.cpp
@@ -44,8 +42,7 @@ add_executable(loop_fusion_node
     src/ThirdParty/DUtils/Timestamp.cpp
     src/ThirdParty/DVision/BRIEF.cpp
     src/ThirdParty/VocabularyBinary.cpp
-    )
-
+)
     
 # added from DEBUG
 ament_target_dependencies(loop_fusion_node camera_models rclcpp ament_index_cpp std_msgs tf2 tf2_ros tf2_eigen tf2_geometry_msgs geometry_msgs sensor_msgs visualization_msgs nav_msgs cv_bridge OpenCV) # roslib) # does 'roslib' really need ??

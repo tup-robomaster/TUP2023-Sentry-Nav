@@ -23,7 +23,11 @@
 #include "depthai/depthai.hpp"
 
 std::vector<std::string> usbStrings = {"UNKNOWN", "LOW", "FULL", "HIGH", "SUPER", "SUPER_PLUS"};
-
+static const std::vector<std::string> labelMap = {
+                                                    "BG","B1","B2","B3","B4","B5","BO","BBs","BB",
+                                                    "RG","R1","R2","R3","R4","R5","RO","RBs","RB",
+                                                    "NG","N1","N2","N3","N4","N5","NO","NBs","NB",
+                                                    "PG","P1","P2","P3","P4","P5","PO","PBs","PB"};
 std::tuple<dai::Pipeline, int, int> createPipeline(bool enableDepth,
                                                    bool enableSpatialDetection,
                                                    bool lrcheck,
@@ -120,7 +124,7 @@ std::tuple<dai::Pipeline, int, int> createPipeline(bool enableDepth,
     auto xoutRgb = pipeline.create<dai::node::XLinkOut>();
     xoutRgb->setStreamName("rgb");
     camRgb->setBoardSocket(dai::CameraBoardSocket::RGB);
-    // camRgb->setFps(30);
+    camRgb->setFps(30);
     dai::node::ColorCamera::Properties::SensorResolution rgbResolution;
 
     if(rgbResolutionStr == "1080p") {
@@ -215,7 +219,6 @@ std::tuple<dai::Pipeline, int, int> createPipeline(bool enableDepth,
     }
 
     if(depth_aligned) {
-
         if(enableSpatialDetection) {
             if (previewWidth > rgbWidth or  previewHeight > rgbHeight) {
                 DEPTHAI_ROS_ERROR_STREAM("DEPTHAI", "Preview Image size should be smaller than the scaled resolution. Please adjust the scale parameters or the preview size accordingly.");
@@ -225,7 +228,6 @@ std::tuple<dai::Pipeline, int, int> createPipeline(bool enableDepth,
             camRgb->setColorOrder(dai::ColorCameraProperties::ColorOrder::BGR);
             camRgb->setInterleaved(false);
             camRgb->setPreviewSize(previewWidth, previewHeight);
-
             auto spatialDetectionNetwork = pipeline.create<dai::node::YoloSpatialDetectionNetwork>();
             auto xoutNN = pipeline.create<dai::node::XLinkOut>();
             auto xoutPreview = pipeline.create<dai::node::XLinkOut>();
@@ -242,9 +244,11 @@ std::tuple<dai::Pipeline, int, int> createPipeline(bool enableDepth,
             // yolo specific parameters
             spatialDetectionNetwork->setNumClasses(detectionClassesCount);
             spatialDetectionNetwork->setCoordinateSize(4);
-            spatialDetectionNetwork->setAnchors({10, 14, 23, 27, 37, 58, 81, 82, 135, 169, 344, 319});
-            spatialDetectionNetwork->setAnchorMasks({{"side13", {3, 4, 5}}, {"side26", {1, 2, 3}}});
-            spatialDetectionNetwork->setIouThreshold(0.5f);
+            spatialDetectionNetwork->setAnchors({10,13,16,30,33,23, 30,61,62,45,59,119, 116,90,156,198,373,326});
+            spatialDetectionNetwork->setAnchorMasks({{"side80", {0,1,2}},
+                                                    {"side40", {3,4,5}},
+                                                    {"side20", {6,7,8}}});
+            spatialDetectionNetwork->setIouThreshold(0.7f);
 
             // Link plugins CAM -> NN -> XLINK
             camRgb->preview.link(spatialDetectionNetwork->input);
@@ -319,6 +323,8 @@ int main(int argc, char** argv) {
     node->declare_parameter("rgbScaleDinominator", 3);
     node->declare_parameter("previewWidth",        416);
     node->declare_parameter("previewHeight",       416);
+    node->declare_parameter("nnName", "x");
+    
 
     node->declare_parameter("angularVelCovariance", 0.02);
     node->declare_parameter("linearAccelCovariance", 0.0);
@@ -382,11 +388,13 @@ int main(int argc, char** argv) {
 
     std::string nnParam;
     node->get_parameter("nnName", nnParam);
+    std::cout<<"nnP:"<<nnParam<<std::endl;
     if(nnParam != "x") {
         node->get_parameter("nnName", nnName);
     }
+    std::cout<<"NNN: "<<nnName<<std::endl;
     nnPath = resourceBaseFolder + "/" + nnName;
-    
+    std::cout<<"NN Path: "<<nnPath<<std::endl;
     if(mode == "depth") {
         enableDepth = true;
     } else {
@@ -574,13 +582,14 @@ int main(int argc, char** argv) {
         if(depth_aligned) {
             if(enableSpatialDetection) {
                 auto previewQueue = device->getOutputQueue("preview", 30, false);
+                // cout<<previewQueue
                 auto detectionQueue = device->getOutputQueue("detections", 30, false);
                 auto previewCameraInfo = rgbConverter.calibrationToCameraInfo(calibrationHandler, dai::CameraBoardSocket::RGB, previewWidth, previewHeight);
 
                 dai::rosBridge::BridgePublisher<sensor_msgs::msg::Image, dai::ImgFrame> previewPublish(
                     previewQueue,
                     node,
-                    std::string("color/preview/image"),
+                    std::string("color/preview"),
                     std::bind(&dai::rosBridge::ImageConverter::toRosMsg, &rgbConverter, std::placeholders::_1, std::placeholders::_2),
                     30,
                     previewCameraInfo,
@@ -591,10 +600,16 @@ int main(int argc, char** argv) {
                 dai::rosBridge::BridgePublisher<depthai_ros_msgs::msg::SpatialDetectionArray, dai::SpatialImgDetections> detectionPublish(
                     detectionQueue,
                     node,
-                    std::string("color/yolov4_Spatial_detections"),
+                    std::string("color/yolov5"),
                     std::bind(&dai::rosBridge::SpatialDetectionConverter::toRosMsg, &detConverter, std::placeholders::_1, std::placeholders::_2),
                     30);
                 detectionPublish.addPublisherCallback();
+                while (1)
+                {
+                    auto inRgb = previewQueue->get<dai::ImgFrame>();
+                    auto inDet = detectionQueue->get<dai::SpatialImgDetections>();
+                //     std::cout<<inRgb->getWidth()<<" * "<<inRgb->getHeight()<<std::endl;
+                }
             }
         }
         rclcpp::spin(node);
@@ -633,7 +648,6 @@ int main(int argc, char** argv) {
                 auto previewQueue = device->getOutputQueue("preview", 30, false);
                 auto detectionQueue = device->getOutputQueue("detections", 30, false);
                 auto previewCameraInfo = rgbConverter.calibrationToCameraInfo(calibrationHandler, dai::CameraBoardSocket::RGB, previewWidth, previewHeight);
-
                 dai::rosBridge::BridgePublisher<sensor_msgs::msg::Image, dai::ImgFrame> previewPublish(
                     previewQueue,
                     node,
@@ -685,4 +699,3 @@ int main(int argc, char** argv) {
 
     return 0;
 }
-
