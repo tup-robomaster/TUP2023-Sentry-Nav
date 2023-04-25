@@ -78,7 +78,7 @@ void MsgLayer::onInitialize()
     tf_broadcaster_ = std::make_shared<tf2_ros::TransformBroadcaster>(rclcpp_node_);
     tf_listener_ = std::make_shared<tf2_ros::TransformListener>(*tf_buffer_);
     subscriber_ = node->create_subscription<grid_map_msgs::msg::GridMap>(map_topic_,
-                                                                        1,
+                                                                        rclcpp::QoS(rclcpp::KeepLast(1)).best_effort(),
                                                                         std::bind(&MsgLayer::callback,
                                                                             this, std::placeholders::_1));
     need_recalculation_ = false;
@@ -140,6 +140,9 @@ void MsgLayer::callback(const grid_map_msgs::msg::GridMap::SharedPtr msg)
                                                                                                                 "elevation", global_frame_));
     map_ptr->add("slope",grid_map.getTransformedMap(tf2::transformToEigen(tf_projected_stamped.transform),"slope", global_frame_)["slope"]);
     double timestamp=msg->header.stamp.sec + 1e-9 * msg->header.stamp.nanosec;
+    // auto node = node_.lock();
+    // double stamp_cur =  1e-9 * node->now().nanoseconds();
+    // std::cout<<"DT:"<<stamp_cur - timestamp<<std::endl;
     //Erase Map out of time decay.
     std::vector<std::shared_ptr<grid_map::GridMap>> grid_map_vec_tmp;
     std::vector<double> grid_map_timestamp_tmp;

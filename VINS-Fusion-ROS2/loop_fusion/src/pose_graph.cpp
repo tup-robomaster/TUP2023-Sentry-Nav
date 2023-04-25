@@ -349,7 +349,7 @@ int PoseGraph::detectLoop(KeyFrame* keyframe, int frame_index)
     //first query; then add this frame into database!
     QueryResults ret;
     TicToc t_query;
-    db.query(keyframe->brief_descriptors, ret, 4, frame_index - 25);
+    db.query(keyframe->brief_descriptors, ret, 4, frame_index - 5);
     printf("query time: %f\n", t_query.toc());
     cout << "Searching for Image " << frame_index << ". " << ret << endl;
 

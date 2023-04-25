@@ -24,10 +24,10 @@
 
 std::vector<std::string> usbStrings = {"UNKNOWN", "LOW", "FULL", "HIGH", "SUPER", "SUPER_PLUS"};
 static const std::vector<std::string> labelMap = {
-                                                    "BG","B1","B2","B3","B4","B5","BO","BBs","BB",
-                                                    "RG","R1","R2","R3","R4","R5","RO","RBs","RB",
-                                                    "NG","N1","N2","N3","N4","N5","NO","NBs","NB",
-                                                    "PG","P1","P2","P3","P4","P5","PO","PBs","PB"};
+                                                    "B0","B1","B2","B3","B4","B5","BO","BBs","BB",
+                                                    "R0","R1","R2","R3","R4","R5","RO","RBs","RB",
+                                                    "N0","N1","N2","N3","N4","N5","NO","NBs","NB",
+                                                    "P0","P1","P2","P3","P4","P5","PO","PBs","PB"};
 std::tuple<dai::Pipeline, int, int> createPipeline(bool enableDepth,
                                                    bool enableSpatialDetection,
                                                    bool lrcheck,
@@ -114,17 +114,17 @@ std::tuple<dai::Pipeline, int, int> createPipeline(bool enableDepth,
         stereo->setDepthAlign(dai::CameraBoardSocket::RGB);
 
     // Imu
-    imu->enableIMUSensor({dai::IMUSensor::ACCELEROMETER_RAW,dai::IMUSensor::GYROSCOPE_RAW}, 400);
+    imu->enableIMUSensor({dai::IMUSensor::ACCELEROMETER_RAW,dai::IMUSensor::GYROSCOPE_RAW}, 200);
     // imu->enableIMUSensor({dai::IMUSensor::ACCELEROMETER,dai::IMUSensor::GYROSCOPE_CALIBRATED}, 400);
-    imu->setBatchReportThreshold(4);
-    imu->setMaxBatchReports(4);  // Get one message only for now.
+    imu->setBatchReportThreshold(5);
+    imu->setMaxBatchReports(10);  // Get one message only for now.
 
     // RGB image
     auto camRgb = pipeline.create<dai::node::ColorCamera>();
-    auto xoutRgb = pipeline.create<dai::node::XLinkOut>();
-    xoutRgb->setStreamName("rgb");
+    // auto xoutRgb = pipeline.create<dai::node::XLinkOut>();
+    // xoutRgb->setStreamName("rgb");
     camRgb->setBoardSocket(dai::CameraBoardSocket::RGB);
-    camRgb->setFps(30);
+    camRgb->setFps(stereo_fps);
     dai::node::ColorCamera::Properties::SensorResolution rgbResolution;
 
     if(rgbResolutionStr == "1080p") {
@@ -154,7 +154,7 @@ std::tuple<dai::Pipeline, int, int> createPipeline(bool enableDepth,
     rgbHeight = rgbHeight * rgbScaleNumerator / rgbScaleDinominator;
     camRgb->setIspScale(rgbScaleNumerator, rgbScaleDinominator);
 
-    camRgb->isp.link(xoutRgb->input);
+    // camRgb->isp.link(xoutRgb->input);
 
     // std::cout << (rgbWidth % 2 == 0 && rgbHeight % 3 == 0) << std::endl;
     // assert(("Needs Width to be multiple of 2 and height to be multiple of 3 since the Image is NV12 format here.", (rgbWidth % 2 == 0 && rgbHeight % 3 == 0)));
@@ -235,9 +235,12 @@ std::tuple<dai::Pipeline, int, int> createPipeline(bool enableDepth,
             xoutNN->setStreamName("detections");
 
             spatialDetectionNetwork->setBlobPath(nnPath);
-            spatialDetectionNetwork->setConfidenceThreshold(0.5f);
+            spatialDetectionNetwork->setConfidenceThreshold(0.7f);
             spatialDetectionNetwork->input.setBlocking(false);
-            spatialDetectionNetwork->setBoundingBoxScaleFactor(0.5);
+            spatialDetectionNetwork->input.setQueueSize(1);
+            spatialDetectionNetwork->setNumInferenceThreads(2);
+            spatialDetectionNetwork->setNumNCEPerInferenceThread(1);
+            spatialDetectionNetwork->setBoundingBoxScaleFactor(1);
             spatialDetectionNetwork->setDepthLowerThreshold(100);
             spatialDetectionNetwork->setDepthUpperThreshold(10000);
 
@@ -456,8 +459,8 @@ int main(int argc, char** argv) {
     if(!poeMode) {
         std::cout << "Device USB status: " << usbStrings[static_cast<int32_t>(device->getUsbSpeed())] << std::endl;
     }
-
-
+    device->setLogLevel(dai::LogLevel::DEBUG);
+    device->setLogOutputLevel(dai::LogLevel::DEBUG);
     // Apply camera controls
     auto controlQueue = device->getInputQueue("control");
 
@@ -566,17 +569,17 @@ int main(int argc, char** argv) {
         depthPublish.addPublisherCallback();
 
         //RGB
-        auto rgbCameraInfo = rgbConverter.calibrationToCameraInfo(calibrationHandler, dai::CameraBoardSocket::RGB, width, height);
-        auto imgQueue = device->getOutputQueue("rgb", 30, false);
-        dai::rosBridge::BridgePublisher<sensor_msgs::msg::Image, dai::ImgFrame> rgbPublish(
-            imgQueue,
-            node,
-            std::string("color/image"),
-            std::bind(&dai::rosBridge::ImageConverter::toRosMsg, &rgbConverter, std::placeholders::_1, std::placeholders::_2),
-            30,
-            rgbCameraInfo,
-            "color");
-        rgbPublish.addPublisherCallback();
+        // auto rgbCameraInfo = rgbConverter.calibrationToCameraInfo(calibrationHandler, dai::CameraBoardSocket::RGB, width, height);
+        // auto imgQueue = device->getOutputQueue("rgb", 30, false);
+        // dai::rosBridge::BridgePublisher<sensor_msgs::msg::Image, dai::ImgFrame> rgbPublish(
+        //     imgQueue,
+        //     node,
+        //     std::string("color/image"),
+        //     std::bind(&dai::rosBridge::ImageConverter::toRosMsg, &rgbConverter, std::placeholders::_1, std::placeholders::_2),
+        //     30,
+        //     rgbCameraInfo,
+        //     "color");
+        // rgbPublish.addPublisherCallback();
 
 
         if(depth_aligned) {

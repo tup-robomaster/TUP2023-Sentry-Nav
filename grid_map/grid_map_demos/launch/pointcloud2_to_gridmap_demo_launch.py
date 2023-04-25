@@ -38,7 +38,8 @@ def generate_launch_description():
                     "config_file_path" : os.path.join(grid_map_demos_dir, 'config', 'pcl_grid_config.yaml')
                     }
                 ],
-        output='screen'
+        output="log",
+        respawn=True
     )
 
     # Create the launch description and populate

@@ -19,7 +19,7 @@
 #include "../utility/utility.h"
 #include "../utility/tic_toc.h"
 
-const int NUM_THREADS = 4;
+const int NUM_THREADS = 2;
 
 #define ROS_INFO RCUTILS_LOG_INFO
 #define ROS_WARN RCUTILS_LOG_WARN

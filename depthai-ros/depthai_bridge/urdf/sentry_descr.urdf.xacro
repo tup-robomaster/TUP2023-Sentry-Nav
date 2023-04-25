@@ -25,11 +25,18 @@
     <link name="$(arg parent_frame)"/>
     <!-- Yaw axis of robot -->
     <link name="gimbal_yaw_frame"/>
-    <joint name="gimbal_yaw_joint" type="revolute">
-        <axis xyz="0 0 1"/>
-        <origin xyz="0 0 0.25" rpy="0 0 0" />
+    <joint name="base_joint" type="fixed">
         <parent link="$(arg parent_frame)"/>
         <child link="gimbal_yaw_frame"/>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+    </joint>
+
+    <link name="chassis_frame"/>
+    <joint name="gimbal_yaw_joint" type="revolute">
+        <axis xyz="0 0 1"/>
+        <origin xyz="0 0 -0.25" rpy="0 0 0" />
+        <parent link="gimbal_yaw_frame"/>
+        <child link="chassis_frame"/>
         <limit effort="30" velocity="10.0" lower="-3.14" upper="3.14" />
     </joint>
 
@@ -38,7 +45,7 @@
     <joint name="gimbal_pitch_joint" type="revolute">
         <axis xyz="0 1 0"/>
         <origin xyz="0 0 0.25" rpy="0 0 0" />
-        <parent link="gimbal_yaw_frame"/>
+        <parent link="$(arg parent_frame)"/>
         <child link="gimbal_pitch_frame"/>
         <limit effort="30" velocity="10.0" lower="-3.14" upper="3.14" />
     </joint>
@@ -48,6 +55,20 @@
         <parent link="gimbal_pitch_frame"/>
         <child link="daheng_img_frame"/>
         <origin xyz="0.1 0 0.05" rpy="-1.57 0 -1.57" />
+    </joint>
+
+    <link name="usb_left_frame"/>
+    <joint name="usb_left_joint" type="fixed">
+        <parent link="gimbal_yaw_frame"/>
+        <child link="usb_left_frame"/>
+        <origin xyz="0 0.1 0.15" rpy="-1.57 0 0" />
+    </joint>
+
+    <link name="usb_right_frame"/>
+    <joint name="usb_right_joint" type="fixed">
+        <parent link="gimbal_yaw_frame"/>
+        <child link="usb_right_frame"/>
+        <origin xyz="0 -0.1 0.15" rpy="1.57 3.14 0" />
     </joint>
 
     <joint name="$(arg camera_name)_center_joint" type="fixed">

@@ -68,7 +68,7 @@ show_track: 1           # publish tracking image as topic
 flow_back: 1            # perform forward and backward optical flow to improve feature tracking accuracy
 
 #optimization parameters
-max_solver_time: 0.05  # max solver itration time (ms), to guarantee real time
+max_solver_time: 0.04  # max solver itration time (ms), to guarantee real time
 max_num_iterations: 8   # max solver itrations, to guarantee real time
 keyframe_parallax: 20.0 # keyframe selection threshold (pixel)
 
@@ -84,7 +84,7 @@ gyr_w: 4.110493324733804e-06    # gyroscope bias random work noise standard devi
 # gyr_w: 3.24963304e-7    # gyroscope bias random work noise standard deviation.
 # acc_w: 0.00589229478   # accelerometer bias random work noise standard deviation.
 # gyr_w: 0.00005199404    # gyroscope bias random work noise standard deviation.   
-g_norm: 9.82                     # gravity magnitude
+g_norm: 9.81                     # gravity magnitude
 
 #unsynchronization parameters
 estimate_td: 0                     # online estimate time offset between camera and imu

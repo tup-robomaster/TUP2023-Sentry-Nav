@@ -86,55 +86,61 @@ def generate_launch_description():
         Node(
             package='nav2_controller',
             executable='controller_server',
-            output='screen',
+            output="log",
             parameters=[configured_params],
-            remappings=remappings),
+            remappings=remappings,
+            respawn=True),
         
         Node(
             package='nav2_map_server',
             executable='map_server',
-            output='screen',
-            parameters=[configured_params]),
+            output="log",
+            parameters=[configured_params],
+            respawn=True),
 
         Node(
             package='nav2_planner',
             executable='planner_server',
             name='planner_server',
-            output='screen',
+            output="log",
             parameters=[configured_params],
-            remappings=remappings),
-
+            remappings=remappings,
+            respawn=True),
         Node(
             package='nav2_recoveries',
             executable='recoveries_server',
             name='recoveries_server',
-            output='screen',
+            output="log",
             parameters=[configured_params],
-            remappings=remappings),
+            remappings=remappings,
+            respawn=True),
 
         Node(
             package='nav2_bt_navigator',
             executable='bt_navigator',
             name='bt_navigator',
-            output='screen',
+            output="log",
             parameters=[configured_params],
-            remappings=remappings),
+            remappings=remappings,
+            respawn=True),
 
         Node(
             package='nav2_waypoint_follower',
             executable='waypoint_follower',
             name='waypoint_follower',
-            output='screen',
+            output="log",
             parameters=[configured_params],
-            remappings=remappings),
+            remappings=remappings,
+            respawn=True),
 
         Node(
             package='nav2_lifecycle_manager',
             executable='lifecycle_manager',
             name='lifecycle_manager_navigation',
-            output='screen',
+            output="log",
             parameters=[{'use_sim_time': use_sim_time},
                         {'autostart': autostart},
-                        {'node_names': lifecycle_nodes}]),
+                        {'node_names': lifecycle_nodes}],
+            respawn=True),
 
     ])

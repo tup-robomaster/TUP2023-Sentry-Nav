@@ -33,7 +33,7 @@ def generate_launch_description():
                 parameters=[params],
             )
         ],
-        output='screen',
+        output="log",
     )
 
     return launch.LaunchDescription([container])

@@ -9,7 +9,7 @@ def generate_launch_description():
                 package='imu_complementary_filter',
                 executable='complementary_filter_node',
                 name='complementary_filter_gain_node',
-                output='screen',
+                output="log",
                 parameters=[
                     {'do_bias_estimation': True},
                     {'do_adaptive_gain': True},

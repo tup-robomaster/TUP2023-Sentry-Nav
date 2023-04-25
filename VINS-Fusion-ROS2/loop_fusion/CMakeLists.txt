@@ -2,7 +2,9 @@ cmake_minimum_required(VERSION 3.5)
 project(loop_fusion)
 
 set(CMAKE_CXX_STANDARD 14)
-add_compile_options( -Wextra -Wpedantic) # -Wall : print warning
+if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  add_compile_options(-Wall -Wextra -Wpedantic -O3)
+endif()
 set(CMAKE_BUILD_TYPE Release)
 
 # find dependencies

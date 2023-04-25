@@ -19,7 +19,7 @@ def generate_launch_description():
         package='grid_map_pcl',
         executable='grid_map_pcl_loader_node',
         name='grid_map_pcl_loader_node',
-        output='screen',
+        output="log",
         parameters=node_params
     )
 

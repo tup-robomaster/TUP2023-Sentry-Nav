@@ -4,7 +4,14 @@ namespace dai {
 namespace ros {
 
 SpatialDetectionConverter::SpatialDetectionConverter(std::string frameName, int width, int height, bool normalized)
-    : _frameName(frameName), _width(width), _height(height), _normalized(normalized), _steadyBaseTime(std::chrono::steady_clock::now()) {}
+    : _frameName(frameName), _width(width), _height(height), _normalized(normalized), _steadyBaseTime(std::chrono::steady_clock::now())
+    {
+    #ifdef IS_ROS2
+        _rosBaseTime = rclcpp::Clock().now();
+    #else
+        _rosBaseTime = ::ros::Time::now();
+    #endif
+    }
 
 void SpatialDetectionConverter::toRosMsg(std::shared_ptr<dai::SpatialImgDetections> inNetData,
                                          std::deque<SpatialMessages::SpatialDetectionArray>& opDetectionMsgs) {
@@ -26,7 +33,6 @@ void SpatialDetectionConverter::toRosMsg(std::shared_ptr<dai::SpatialImgDetectio
         auto rclStamp = rclNow - diffTime;
         opDetectionMsg.header.stamp = rclStamp;
     #endif */
-
     opDetectionMsg.header.stamp = getFrameTime(_rosBaseTime, _steadyBaseTime, tstamp);
     opDetectionMsg.header.frame_id = _frameName;
     opDetectionMsg.detections.resize(inNetData->detections.size());

@@ -267,8 +267,10 @@ bool Estimator::getIMUInterval(double t0, double t1, vector<pair<double, Eigen::
     }
     // printf("get imu from %f %f\n", t0, t1);
     // printf("imu fornt time %f   imu end time %f\n", accBuf.front().first, accBuf.back().first);
+    std::cout<<"================================="<<std::endl;
     if(t1 <= accBuf.back().first)
     {
+
         std::sort(accBuf.begin(),
                     accBuf.end(),
                     [](pair<double, Eigen::Vector3d> prev, pair<double, Eigen::Vector3d> next)
@@ -349,7 +351,9 @@ void Estimator::processMeasurements()
             if(USE_IMU)
             {
                 // cout << "2-1)" << endl;
-                getIMUInterval(prevTime, curTime, accVector, gyrVector);
+
+                if(!getIMUInterval(prevTime, curTime, accVector, gyrVector))
+                    usleep(2e3);
                 for(auto gyr : gyrVector)
                 {
                     gyr_mean += gyr.second;
@@ -648,17 +652,17 @@ void Estimator::processImage(const map<int, vector<pair<int, Eigen::Matrix<doubl
         }
             
 
-        if (failureDetection())
-        {
-            ROS_WARN("failure detection!");
-            failure_occur = 1;
-            clearState(true);
-            ROS_WARN("State Cleared");
-            setParameter(true);
-            ROS_WARN("Parameter Reseted.");
-            ROS_WARN("system reboot!");
-            return;
-        }
+        // if (failureDetection())
+        // {
+        //     ROS_WARN("failure detection!");
+        //     failure_occur = 1;
+        //     clearState(true);
+        //     ROS_WARN("State Cleared");
+        //     setParameter(true);
+        //     ROS_WARN("Parameter Reseted.");
+        //     ROS_WARN("system reboot!");
+        //     return;
+        // }
 
         slideWindow();
         f_manager.removeFailures();
@@ -1084,11 +1088,11 @@ bool Estimator::failureDetection()
         ROS_WARN(" big translation");
         return true;
     }
-    if (abs(tmp_P.z() - last_P.z()) > 1)
-    {
-        ROS_WARN(" big z translation");
-        return true; 
-    }
+    // if (abs(tmp_P.z() - last_P.z()) > 1)
+    // {
+    //     ROS_WARN(" big z translation");
+    //     return true; 
+    // }
     if (Vs[WINDOW_SIZE].norm() > 10.0)
     {
         ROS_WARN("Big V");
@@ -1220,7 +1224,7 @@ void Estimator::optimization()
     ceres::Solver::Options options;
 
     options.linear_solver_type = ceres::DENSE_SCHUR;
-    options.num_threads = 1;
+    options.num_threads = 2;
     options.trust_region_strategy_type = ceres::DOGLEG;
     options.max_num_iterations = NUM_ITERATIONS;
     //options.use_explicit_schur_complement = true;

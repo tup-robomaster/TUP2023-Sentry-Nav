@@ -59,7 +59,7 @@ def generate_launch_description():
     resourceBaseFolder      = LaunchConfiguration('resourceBaseFolder', default = default_resources_path)
 
 
-    stereo_fps            = LaunchConfiguration('stereo_fps', default = 50)
+    stereo_fps            = LaunchConfiguration('stereo_fps', default = 30)
     confidence            = LaunchConfiguration('confidence', default = 200)
     LRchecktresh          = LaunchConfiguration('LRchecktresh', default = 5)
     monoResolution        = LaunchConfiguration('monoResolution', default = '400p')
@@ -68,7 +68,7 @@ def generate_launch_description():
     rgbScaleNumerator       = LaunchConfiguration('rgbScaleNumerator',  default = 2)
     rgbScaleDinominator     = LaunchConfiguration('rgbScaleDinominator',    default = 3)
     previewWidth            = LaunchConfiguration('previewWidth',   default = 640)
-    previewHeight           = LaunchConfiguration('previewHeight',  default = 480)
+    previewHeight           = LaunchConfiguration('previewHeight',  default = 416)
     
     
     angularVelCovariance  = LaunchConfiguration('angularVelCovariance', default = 0.0)
@@ -76,7 +76,7 @@ def generate_launch_description():
 
     enableDotProjector = LaunchConfiguration('enableDotProjector', default = True)
     enableFloodLight   = LaunchConfiguration('enableFloodLight', default = False)
-    dotProjectormA     = LaunchConfiguration('dotProjectormA', default = 120.0)
+    dotProjectormA     = LaunchConfiguration('dotProjectormA', default = 80.0)
     floodLightmA       = LaunchConfiguration('floodLightmA', default = 0.0)
     enableRviz         = LaunchConfiguration('enableRviz', default = False)
 
@@ -319,16 +319,23 @@ def generate_launch_description():
 
 
 
-    tf_adapter_node_ = launch_ros.actions.Node(
+    tf_adapter_node_map_ = launch_ros.actions.Node(
         package="tf2_ros",
         executable="static_transform_publisher",
-        output="screen" ,
-        arguments=["0.0", "0", "0", "0", "0", "0", "map", "odom_rect"]
+        output="log" ,
+        arguments=["3.7", "-4.5", "0", "0", "0", "0", "map", "odom_rect"]
+    )
+
+    tf_adapter_node_decision_ = launch_ros.actions.Node(
+        package="tf2_ros",
+        executable="static_transform_publisher",
+        output="log" ,
+        arguments=["0.0", "0", "0", "0", "0", "3.14", "map_decision", "map"]
     )
 
     stereo_node = launch_ros.actions.Node(
             package='depthai_examples', executable='stereo_inertial_node',
-            output='screen',
+            output="log",
             parameters=[{'mxId':                    mxId},
                         {'usb2Mode':                usb2Mode},
                         {'poeMode':                 poeMode},
@@ -369,7 +376,8 @@ def generate_launch_description():
                         {'enableFloodLight':        enableFloodLight},
                         {'dotProjectormA':          dotProjectormA},
                         {'floodLightmA':            floodLightmA}
-                        ])
+                        ],
+                        respawn=True)
     
     depth_metric_converter = launch_ros.descriptions.ComposableNode(
                                 package='depth_image_proc',
@@ -398,11 +406,12 @@ def generate_launch_description():
             name='point_cloud_xyz_node',
             remappings=[('image_rect', '/stereo/depth'),
                         ('camera_info', '/stereo/camera_info'),
-                        ('points', pointcloud_topic )]
+                        ('points', pointcloud_topic )],
+            parameters=[{'queue_size': 1}]
         )
 
         rviz_node = launch_ros.actions.Node(
-            package='rviz2', executable='rviz2', output='screen',
+            package='rviz2', executable='rviz2', output="log",
             arguments=['--display-config', aligned_rviz],
             condition=IfCondition(enableRviz))
 
@@ -420,7 +429,7 @@ def generate_launch_description():
 
 
         rviz_node = launch_ros.actions.Node(
-            package='rviz2', executable='rviz2', output='screen',
+            package='rviz2', executable='rviz2', output="log",
             arguments=['--display-config', rectify_rviz],
             condition=IfCondition(enableRviz))
 
@@ -437,7 +446,7 @@ def generate_launch_description():
                     depth_metric_converter,
                     point_cloud_creator
                 ],
-                output='screen',)
+                output="log",)
 
 
     ld = LaunchDescription()
@@ -498,7 +507,8 @@ def generate_launch_description():
 
     ld.add_action(urdf_launch)
     ld.add_action(stereo_node)
-    ld.add_action(tf_adapter_node_)
+    ld.add_action(tf_adapter_node_map_)
+    ld.add_action(tf_adapter_node_decision_)
 
     if LaunchConfigurationEquals('depth_aligned', 'True') and LaunchConfigurationEquals('rectify', 'True'):
         ld.add_action(point_cloud_container)

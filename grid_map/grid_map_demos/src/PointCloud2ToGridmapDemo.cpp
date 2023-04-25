@@ -26,7 +26,7 @@ PointCloud2ToGridmapDemo::PointCloud2ToGridmapDemo()
     tfBuffer_ = std::make_shared<tf2_ros::Buffer>(this->get_clock());
     tfListener_ = std::make_shared<tf2_ros::TransformListener>(*tfBuffer_);
     pointCloud2Subscriber_ = this->create_subscription<sensor_msgs::msg::PointCloud2>(pointCloud2Topic_,
-                                                                                        rclcpp::QoS(rclcpp::KeepLast(1)).best_effort(),
+                                                                                         rclcpp::QoS(rclcpp::QoS(1).best_effort()),
                                                                                         std::bind(&PointCloud2ToGridmapDemo::pointCloud2Callback,
                                                                                         this, std::placeholders::_1));
 
@@ -97,7 +97,7 @@ void PointCloud2ToGridmapDemo::pointCloud2Callback(const sensor_msgs::msg::Point
     range_cond->addComparison(pcl::FieldComparison<pcl::PointXYZ>::ConstPtr(
             new pcl::FieldComparison<pcl::PointXYZ>("z", pcl::ComparisonOps::LT, 4)));
     range_cond->addComparison(pcl::FieldComparison<pcl::PointXYZ>::ConstPtr(
-            new pcl::FieldComparison<pcl::PointXYZ>("z", pcl::ComparisonOps::GT, 0.05)));
+            new pcl::FieldComparison<pcl::PointXYZ>("z", pcl::ComparisonOps::GT, 0.25)));
     range_cond->addComparison(pcl::FieldComparison<pcl::PointXYZ>::ConstPtr(
             new pcl::FieldComparison<pcl::PointXYZ>("x", pcl::ComparisonOps::LT, 3.0)));
     range_cond->addComparison(pcl::FieldComparison<pcl::PointXYZ>::ConstPtr(
@@ -156,6 +156,9 @@ void PointCloud2ToGridmapDemo::pointCloud2Callback(const sensor_msgs::msg::Point
     std::cout<<"t3: "<<(float)(std::chrono::duration<double,std::milli>(t4 - t1).count())<<std::endl;
     std::cout<<"t4: "<<(float)(std::chrono::duration<double,std::milli>(t5 - t1).count())<<std::endl;
     std::cout<<"t5: "<<(float)(std::chrono::duration<double,std::milli>(t6 - t1).count())<<std::endl;
+    // double timestamp=msg->header.stamp.sec + 1e-9 * msg->header.stamp.nanosec;
+    // double stamp_cur =  1e-9 * this->now().nanoseconds();
+    // std::cout<<"DT:"<<stamp_cur - timestamp<<std::endl;
     auto message = grid_map::GridMapRosConverter::toMessage(outputMap);
     message->header.stamp = msg->header.stamp;
     gridMapPublisher_->publish(std::move(message));

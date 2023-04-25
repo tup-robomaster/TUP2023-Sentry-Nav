@@ -29,5 +29,5 @@
                         cam_yaw:=$(arg cam_yaw)"/>
 
 
-    <node name="$(arg tf_prefix)_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" output="screen" required="true"/>
+    <node name="$(arg tf_prefix)_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" output="log" required="true"/>
 </launch>

@@ -243,7 +243,7 @@ void KeyFrame::PnPRANSAC(const vector<cv::Point2f> &matched_2d_old_norm,
     }
     else
     {
-        solvePnPRansac(matched_3d, matched_2d_old_norm, K, D, rvec, t, true, 100, 10.0 / 40, 0.99, inliers);
+        solvePnPRansac(matched_3d, matched_2d_old_norm, K, D, rvec, t, true, 100, 10.0 / 80, 0.99, inliers);
     }
 
     for (int i = 0; i < (int)matched_2d_old_norm.size(); i++)
@@ -373,6 +373,7 @@ bool KeyFrame::findConnection(KeyFrame* old_kf)
 				sensor_msgs::msg::Image::SharedPtr msg = cv_bridge::CvImage(std_msgs::msg::Header(), "bgr8", thumbimage).toImageMsg();
 				msg->header.stamp = rclcpp::Time(time_stamp);
 				pub_match_img->publish(*msg);
+				std::cout<<"Publishing"<<std::endl;
 			}
 		}
 
