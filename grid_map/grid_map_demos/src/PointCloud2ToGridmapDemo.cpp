@@ -95,17 +95,17 @@ void PointCloud2ToGridmapDemo::pointCloud2Callback(const sensor_msgs::msg::Point
     pcl::ConditionAnd<pcl::PointXYZ>::Ptr range_cond(new pcl::ConditionAnd<pcl::PointXYZ>());
     pcl::ConditionalRemoval<pcl::PointXYZ> condrem;
     range_cond->addComparison(pcl::FieldComparison<pcl::PointXYZ>::ConstPtr(
-            new pcl::FieldComparison<pcl::PointXYZ>("z", pcl::ComparisonOps::LT, 4)));
+            new pcl::FieldComparison<pcl::PointXYZ>("z", pcl::ComparisonOps::LT, 2.0)));
     range_cond->addComparison(pcl::FieldComparison<pcl::PointXYZ>::ConstPtr(
-            new pcl::FieldComparison<pcl::PointXYZ>("z", pcl::ComparisonOps::GT, 0.25)));
+            new pcl::FieldComparison<pcl::PointXYZ>("z", pcl::ComparisonOps::GT, -2.0)));
     range_cond->addComparison(pcl::FieldComparison<pcl::PointXYZ>::ConstPtr(
             new pcl::FieldComparison<pcl::PointXYZ>("x", pcl::ComparisonOps::LT, 3.0)));
     range_cond->addComparison(pcl::FieldComparison<pcl::PointXYZ>::ConstPtr(
             new pcl::FieldComparison<pcl::PointXYZ>("x", pcl::ComparisonOps::GT, -3.0)));
     range_cond->addComparison(pcl::FieldComparison<pcl::PointXYZ>::ConstPtr(
-            new pcl::FieldComparison<pcl::PointXYZ>("y", pcl::ComparisonOps::LT, 0.5)));
+            new pcl::FieldComparison<pcl::PointXYZ>("y", pcl::ComparisonOps::LT, 3.0)));
     range_cond->addComparison(pcl::FieldComparison<pcl::PointXYZ>::ConstPtr(
-            new pcl::FieldComparison<pcl::PointXYZ>("y", pcl::ComparisonOps::GT, -0.5)));
+            new pcl::FieldComparison<pcl::PointXYZ>("y", pcl::ComparisonOps::GT, -3.0)));
     condrem.setCondition(range_cond);
     condrem.setInputCloud(cloud_src);
     condrem.setKeepOrganized(true);

@@ -12,7 +12,7 @@ pcl_grid_map_extraction:
       y: 0.0
   cluster_extraction:
     cluster_tolerance: 0.05
-    min_num_points: 4
+    min_num_points: 1
     max_num_points: 1000000
   outlier_removal:
     is_remove_outliers: true
@@ -21,11 +21,11 @@ pcl_grid_map_extraction:
   downsampling:
     is_downsample_cloud: true
     voxel_size:
-      x: 0.025
-      y: 0.025
-      z: 0.025
+      x: 0.05
+      y: 0.05
+      z: 0.05
   grid_map:
-    min_num_points_per_cell: 6
+    min_num_points_per_cell: 1
     resolution: 0.05
     # 0: Smallest value among the average values ​​of each cluster
     # 1: Mean value of the cluster with the most points

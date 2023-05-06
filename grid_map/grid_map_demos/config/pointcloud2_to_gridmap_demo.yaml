@@ -1,6 +1,6 @@
 pointcloud2_to_gridmap:
   ros__parameters:
-    pointcloud_topic: "/stereo/points"
+    pointcloud_topic: "/lio_sam/mapping/cloud_registered_raw"
     map_frame_id: "base_link"
     filters:
       filter1:  # Fill holes in the map with inpainting.
