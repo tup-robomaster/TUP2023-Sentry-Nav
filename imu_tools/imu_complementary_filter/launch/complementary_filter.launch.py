@@ -14,8 +14,11 @@ def generate_launch_description():
                     {'do_bias_estimation': True},
                     {'do_adaptive_gain': True},
                     {'use_mag': False},
-                    {'gain_acc': 0.01},
+                    {'gain_acc': 1e-2},
                     {'gain_mag': 0.01},
+                ],
+                remappings=[
+                    ('/imu/data_raw', '/livox/imu')
                 ],
             )
         ]

@@ -152,13 +152,8 @@ void ComplementaryFilterROS::initializeParams()
 void ComplementaryFilterROS::imuCallback(ImuMsg::ConstSharedPtr imu_msg_raw)
 {
     geometry_msgs::msg::Vector3 a = imu_msg_raw->linear_acceleration;
-    std::swap(a.x,a.z);
     // a.y=-a.y;
     geometry_msgs::msg::Vector3 w = imu_msg_raw->angular_velocity;
-    std::swap(w.x,w.z);
-    w.x = -w.x;
-    w.y = -w.y;
-    w.z = -w.z;
     const rclcpp::Time &time = imu_msg_raw->header.stamp;
 
     // Initialize.
@@ -240,12 +235,6 @@ void ComplementaryFilterROS::publish(ImuMsg::ConstSharedPtr imu_msg_raw)
     // imu_msg->linear_acceleration.y=-imu_msg->linear_acceleration.y;
     // imu_msg->angular_velocity.x=-imu_msg->angular_velocity.x;
     // imu_msg->angular_velocity.z=-imu_msg->angular_velocity.z;
-    std::swap(imu_msg->linear_acceleration.x, imu_msg->linear_acceleration.z);
-
-    std::swap(imu_msg->angular_velocity.x, imu_msg->angular_velocity.z);
-    imu_msg->angular_velocity.x = -imu_msg->angular_velocity.x;
-    imu_msg->angular_velocity.y = -imu_msg->angular_velocity.y;
-    imu_msg->angular_velocity.z = -imu_msg->angular_velocity.z;
 
     imu_msg->orientation.x = q1;
     imu_msg->orientation.y = q2;
