@@ -88,61 +88,60 @@ void MsgLayer::onInitialize()
 
 void MsgLayer::callback(const grid_map_msgs::msg::GridMap::SharedPtr msg)
 {
-    auto t1 = std::chrono::steady_clock::now();
     auto frame_id = msg->header.frame_id;
     tf2::Transform transform;
     geometry_msgs::msg::TransformStamped tf_msg;
-    try
+    std::shared_ptr<grid_map::GridMap> map_ptr;
+
+    if (global_frame_ != frame_id)
     {
-        tf_msg = tf_buffer_->lookupTransform(global_frame_, frame_id, msg->header.stamp, rclcpp::Duration::from_seconds(0.2));
-        tf2::convert(tf_msg.transform, transform);
+        try
+        {
+            tf_msg = tf_buffer_->lookupTransform(global_frame_, frame_id, msg->header.stamp, rclcpp::Duration::from_seconds(0.2));
+            tf2::convert(tf_msg.transform, transform);
+        }
+        catch (const tf2::TransformException &ex)
+        {
+            RCLCPP_ERROR(rclcpp_node_->get_logger(), "%s",ex.what());
+            return;
+        }
+        //Get euler angle of rotation and set a new transform only with yaw
+        double roll,pitch,yaw;
+        tf2::Vector3 origin;
+        transform.getBasis().getRPY(roll,pitch,yaw);
+        origin = transform.getOrigin();
+        tf2::Quaternion q_projected;
+        q_projected.setRPY(0,0,yaw);
+        origin.setZ(0);
+        transform_projected_.setRotation(q_projected);
+        transform_projected_.setOrigin(origin);
+        geometry_msgs::msg::TransformStamped tf_projected_stamped;
+        tf_projected_stamped.header.stamp = msg->header.stamp;
+        tf_projected_stamped.header.frame_id = global_frame_;
+        tf_projected_stamped.child_frame_id = global_frame_ + "_projected";
+        tf_projected_stamped.transform.translation.x = transform_projected_.getOrigin().getX();
+        tf_projected_stamped.transform.translation.y = transform_projected_.getOrigin().getY();
+        tf_projected_stamped.transform.translation.z = transform_projected_.getOrigin().getZ();
+        tf_projected_stamped.transform.rotation.x = transform_projected_.getRotation().x();
+        tf_projected_stamped.transform.rotation.y = transform_projected_.getRotation().y();
+        tf_projected_stamped.transform.rotation.z = transform_projected_.getRotation().z();
+        tf_projected_stamped.transform.rotation.w = transform_projected_.getRotation().w();
+
+        tf_broadcaster_->sendTransform(tf_projected_stamped);
+        grid_map::GridMap grid_map;
+        grid_map::GridMapRosConverter::fromMessage(*msg, grid_map);
+        map_ptr = std::make_shared<grid_map::GridMap>(grid_map.getTransformedMap(tf2::transformToEigen(tf_projected_stamped.transform),
+                                                                                                                    "elevation", global_frame_));
+        map_ptr->add("slope",grid_map.getTransformedMap(tf2::transformToEigen(tf_projected_stamped.transform),"slope", global_frame_)["slope"]);
     }
-    catch (const tf2::TransformException &ex)
+    else
     {
-        RCLCPP_ERROR(rclcpp_node_->get_logger(), "%s",ex.what());
-        return;
+        grid_map::GridMap grid_map;
+        grid_map::GridMapRosConverter::fromMessage(*msg, grid_map);
+        map_ptr = std::make_shared<grid_map::GridMap>(grid_map);
     }
-    auto t2 = std::chrono::steady_clock::now();
-    //Get euler angle of rotation and set a new transform only with yaw
-    double roll,pitch,yaw;
-    tf2::Vector3 origin;
-    transform.getBasis().getRPY(roll,pitch,yaw);
-    origin = transform.getOrigin();
-    tf2::Quaternion q_projected;
-    q_projected.setRPY(0,0,yaw);
-    origin.setZ(0);
-    map_lock_.lock();
-    transform_projected_.setRotation(q_projected);
-    transform_projected_.setOrigin(origin);
-    geometry_msgs::msg::TransformStamped tf_projected_stamped;
-    tf_projected_stamped.header.stamp = msg->header.stamp;
-    tf_projected_stamped.header.frame_id = global_frame_;
-    tf_projected_stamped.child_frame_id = global_frame_ + "_projected";
-    tf_projected_stamped.transform.translation.x = transform_projected_.getOrigin().getX();
-    tf_projected_stamped.transform.translation.y = transform_projected_.getOrigin().getY();
-    tf_projected_stamped.transform.translation.z = transform_projected_.getOrigin().getZ();
-    tf_projected_stamped.transform.rotation.x = transform_projected_.getRotation().x();
-    tf_projected_stamped.transform.rotation.y = transform_projected_.getRotation().y();
-    tf_projected_stamped.transform.rotation.z = transform_projected_.getRotation().z();
-    tf_projected_stamped.transform.rotation.w = transform_projected_.getRotation().w();
-    geometry_msgs::msg::TransformStamped tf_projected_stamped_inverse;
-    tf_projected_stamped_inverse.transform.translation.x = transform_projected_.inverse().getOrigin().getX();
-    tf_projected_stamped_inverse.transform.translation.y = transform_projected_.inverse().getOrigin().getY();
-    tf_projected_stamped_inverse.transform.translation.z = transform_projected_.inverse().getOrigin().getZ();
-    tf_projected_stamped_inverse.transform.rotation.x = transform_projected_.inverse().getRotation().x();
-    tf_projected_stamped_inverse.transform.rotation.y = transform_projected_.inverse().getRotation().y();
-    tf_projected_stamped_inverse.transform.rotation.z = transform_projected_.inverse().getRotation().z();
-    tf_projected_stamped_inverse.transform.rotation.w = transform_projected_.inverse().getRotation().w();
-    tf_broadcaster_->sendTransform(tf_projected_stamped);
-    grid_map::GridMap grid_map;
-    grid_map::GridMapRosConverter::fromMessage(*msg, grid_map);
-    auto map_ptr = std::make_shared<grid_map::GridMap>(grid_map.getTransformedMap(tf2::transformToEigen(tf_projected_stamped.transform),
-                                                                                                                "elevation", global_frame_));
-    map_ptr->add("slope",grid_map.getTransformedMap(tf2::transformToEigen(tf_projected_stamped.transform),"slope", global_frame_)["slope"]);
-    double timestamp=msg->header.stamp.sec + 1e-9 * msg->header.stamp.nanosec;
-    // auto node = node_.lock();
-    // double stamp_cur =  1e-9 * node->now().nanoseconds();
-    // std::cout<<"DT:"<<stamp_cur - timestamp<<std::endl;
+
+    double timestamp = msg->header.stamp.sec + 1e-9 * msg->header.stamp.nanosec;
     //Erase Map out of time decay.
     std::vector<std::shared_ptr<grid_map::GridMap>> grid_map_vec_tmp;
     std::vector<double> grid_map_timestamp_tmp;
@@ -156,10 +155,11 @@ void MsgLayer::callback(const grid_map_msgs::msg::GridMap::SharedPtr msg)
         }
     }
 
+    map_lock_.lock();
     grid_map_vec = grid_map_vec_tmp;
     grid_map_timestamp = grid_map_timestamp_tmp;
     grid_map_ = map_ptr;
-    auto t4 = std::chrono::steady_clock::now();
+
     if (grid_map_vec.size() > 0)
     {
         for (int i=0; i < grid_map_vec.size();i++)
@@ -169,16 +169,12 @@ void MsgLayer::callback(const grid_map_msgs::msg::GridMap::SharedPtr msg)
     }
     grid_map_vec.emplace_back(map_ptr);
     grid_map_timestamp.push_back(timestamp);
-    auto t3 = std::chrono::steady_clock::now();
-    // std::cout<<"t1: "<<(float)(std::chrono::duration<double,std::milli>(t2 - t1).count())<<std::endl;
     map_lock_.unlock();
 
-    //TODO: Mapping
 }
 
 // The method is called to ask the plugin: which area of costmap it needs to update.
-// Inside this method window bounds are re-calculated if need_recalculation_ is true
-// and updated independently on its value.
+// Inside this method window bounds are re-calculated.
 void MsgLayer::updateBounds(
   double robot_x, double robot_y, double robot_yaw, double * min_x,
   double * min_y, double * max_x, double * max_y)
@@ -187,37 +183,6 @@ void MsgLayer::updateBounds(
     *max_x = robot_x + 3;
     *min_y = robot_y - 3;
     *max_y = robot_y + 3;
-    // // std::cout<<robot_x<<" : "<<robot_y<<" : "<<robot_yaw<<std::endl;
-    // if (need_recalculation_)
-    // {
-    //     last_min_x_ = *min_x;
-    //     last_min_y_ = *min_y;
-    //     last_max_x_ = *max_x;
-    //     last_max_y_ = *max_y;
-    //     // For some reason when I make these -<double>::max() it does not
-    //     // work with Costmap2D::worldToMapEnforceBounds(), so I'm using
-    //     // -<float>::max() instead.
-    //     *min_x = -std::numeric_limits<float>::max();
-    //     *min_y = -std::numeric_limits<float>::max();
-    //     *max_x = std::numeric_limits<float>::max();
-    //     *max_y = std::numeric_limits<float>::max();
-    //     need_recalculation_ = false;
-    // }
-    // else
-    // {
-    //     double tmp_min_x = last_min_x_;
-    //     double tmp_min_y = last_min_y_;
-    //     double tmp_max_x = last_max_x_;
-    //     double tmp_max_y = last_max_y_;
-    //     last_min_x_ = *min_x;
-    //     last_min_y_ = *min_y;
-    //     last_max_x_ = *max_x;
-    //     last_max_y_ = *max_y;
-    //     *min_x = std::min(tmp_min_x, *min_x);
-    //     *min_y = std::min(tmp_min_y, *min_y);
-    //     *max_x = std::max(tmp_max_x, *max_x);
-    //     *max_y = std::max(tmp_max_y, *max_y);
-    // }
 }
 
 // The method is called when footprint was changed.
@@ -248,13 +213,10 @@ MsgLayer::updateCosts(nav2_costmap_2d::Costmap2D & master_grid, int min_i, int m
     min_j = std::max(0, min_j);
     max_i = std::min(static_cast<int>(size_x), max_i);
     max_j = std::min(static_cast<int>(size_y), max_j);
-
     // Simply computing one-by-one cost per each cell
     map_lock_.lock();
     for (int j = min_j; j < max_j; j++)
     {
-        // Reset gradient_index each time when reaching the end of re-calculated window
-        // by OY axis.
         for (int i = min_i; i < max_i; i++)
         {
             double worldx, worldy;
@@ -262,11 +224,6 @@ MsgLayer::updateCosts(nav2_costmap_2d::Costmap2D & master_grid, int min_i, int m
             Eigen::Vector2d vec2d_map(worldx,worldy);
             Eigen::Array2i idx_map;
             int index = master_grid.getIndex(i, j);
-            // if (vec2d_map[1] < 0.2 && vec2d_map[1] > -0.2)
-            // {
-            //     if (vec2d_map[0] < 1.2 && vec2d_map[0] > 1.0)
-            //         master_array[index] = 254;
-            // }
             if (grid_map_->isInside(vec2d_map))
             {
                 double slope = grid_map_->atPosition("slope", vec2d_map);
@@ -274,13 +231,9 @@ MsgLayer::updateCosts(nav2_costmap_2d::Costmap2D & master_grid, int min_i, int m
                 if (!std::isnan(elevation) && !std::isnan(slope))
                 {
                     double cost;
-                    if (elevation < 0.1 && elevation > -0.5)
-                        cost = 0;
-                    else
-                        cost = 254;
-                    // double cost = slope;
-                    // cost = slope / 1.5708 * 254;
-                    // if (cost > 200)
+                    cost = slope * 254;
+                    // cost = abs(slope - 1) * 250;
+                    // if (cost > 100)
                     //     cost = 254;
                     // else
                     //     cost = 0;

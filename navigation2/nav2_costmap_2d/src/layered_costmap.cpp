@@ -187,7 +187,6 @@ void LayeredCostmap::updateMap(double robot_x, double robot_y, double robot_yaw)
         (*filter)->getName().c_str());
     }
   }
-
   int x0, xn, y0, yn;
   combined_costmap_.worldToMapEnforceBounds(minx_, miny_, x0, y0);
   combined_costmap_.worldToMapEnforceBounds(maxx_, maxy_, xn, yn);
@@ -196,6 +195,7 @@ void LayeredCostmap::updateMap(double robot_x, double robot_y, double robot_yaw)
   xn = std::min(static_cast<int>(combined_costmap_.getSizeInCellsX()), xn + 1);
   y0 = std::max(0, y0);
   yn = std::min(static_cast<int>(combined_costmap_.getSizeInCellsY()), yn + 1);
+  // std::cout<<"x0: "<<x0<<" xn: "<<xn<<" y0: "<<y0<<" yn: "<<yn<<std::endl;
 
   RCLCPP_DEBUG(
     rclcpp::get_logger(

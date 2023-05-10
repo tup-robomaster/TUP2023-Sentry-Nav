@@ -77,8 +77,8 @@ private:
   //! PointCloud2 subscriber
   rclcpp::Subscription<sensor_msgs::msg::PointCloud2>::SharedPtr pointCloud2Subscriber_;
 
-  //! Name of the grid map topic.
-  std::string pointCloud2Topic_;
+  std::deque<pcl::PointCloud<pcl::PointXYZ>::Ptr> pointcloud_deque_; 
+  std::deque<rclcpp::Time> timestamp_deque_;
 
   //! Resolution of the grid map.
   double resolution_;
@@ -86,6 +86,11 @@ private:
   //! Range of the height values.
   double minHeight_;
   double maxHeight_;
+
+  double integration_time_;
+
+  //! Name of the grid map topic.
+  std::string pointCloud2Topic_;
 
   //! Frame id of the grid map.
   std::string mapFrameId_;

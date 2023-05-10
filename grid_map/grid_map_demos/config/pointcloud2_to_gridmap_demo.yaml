@@ -1,7 +1,8 @@
 pointcloud2_to_gridmap:
   ros__parameters:
     pointcloud_topic: "/lio_sam/mapping/cloud_registered_raw"
-    map_frame_id: "base_link"
+    map_frame_id: "odom"
+    integration_time: 1.0
     filters:
       filter1:  # Fill holes in the map with inpainting.
         name: inpaint
@@ -9,7 +10,7 @@ pointcloud2_to_gridmap:
         params:
           input_layer: elevation
           output_layer: elevation_inpainted
-          radius: 0.05
+          radius: 0.1
 
       filter2:  # Compute surface normals.
         name: surface_normals
@@ -17,7 +18,7 @@ pointcloud2_to_gridmap:
         params:
           input_layer: elevation_inpainted
           output_layers_prefix: normal_vectors_
-          radius: 0.05
+          radius: 0.2
           normal_vector_positive_axis: z
 
       filter3:  # Compute slope from surface normal.

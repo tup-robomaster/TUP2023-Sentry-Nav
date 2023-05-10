@@ -18,7 +18,7 @@
 		<remap from="cloud_in" to="/lio_sam/mapping/cloud_registered_raw" />
 
 		<param name="full" value="true" />
-		<param name="octomap_path" value="/home/rangeronmars/ros2_ws/src/dll/maps/3F.bt" />
+		<param name="octomap_path" value="/home/tup/ros2_ws/src/TUP2023-Sentry-Framework/TUP2023-Sentry-Nav/dll/maps/133.bt" />
 
 	</node>
 </launch>

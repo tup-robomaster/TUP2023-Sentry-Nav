@@ -22,7 +22,7 @@
 #include <pcl/registration/ndt.h>
 #include <pcl/filters/approximate_voxel_grid.h>
 
-#define MAX_FIT_MSE_ERROR 0.2
+#define MAX_FIT_MSE_ERROR 1e2
 
 struct TrilinearParams
 {
@@ -48,6 +48,8 @@ private:
     bool m_saveGrid, m_publishPc;
     std::string m_mapPath, m_nodeName;
     std::string m_globalFrameId;
+
+    int align_method;
     float m_gridSlice;
     double m_publishPointCloudRate, m_publishGridSliceRate;
     
@@ -107,6 +109,7 @@ public:
         nh->get_parameter("publish_point_cloud_rate", m_publishPointCloudRate);
         nh->get_parameter("publish_grid_slice", value);
         nh->get_parameter("publish_grid_slice_rate", m_publishGridSliceRate);
+        nh->get_parameter("align_method", align_method);
         m_gridSlice = (float)value;
         
         // Load octomap 
@@ -124,7 +127,7 @@ public:
             if(m_mapPath.compare(m_mapPath.length()-3, 3, ".ot") == 0)
                 path = m_mapPath.substr(0,m_mapPath.find(".ot"))+".grid";
             std::cout<<"Searching gird: "<<path<<std::endl;
-            if(!loadGrid(path))
+            if(!loadGrid(path)  && align_method == 1)
             {                        
                 // Compute the gridMap using kdtree search over the point-cloud
                 std::cout << "Computing 3D occupancy grid. This will take some time..." << std::endl;

@@ -3,6 +3,7 @@ project(grid_map_demos)
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic -O3)
 endif()
+
 ## Find ament_cmake macros and libraries
 find_package(ament_cmake REQUIRED)
 find_package(cv_bridge REQUIRED)
@@ -14,6 +15,7 @@ find_package(grid_map_msgs REQUIRED)
 find_package(grid_map_octomap REQUIRED)
 find_package(grid_map_pcl REQUIRED)
 find_package(grid_map_ros REQUIRED)
+find_package(grid_map_filters REQUIRED)
 find_package(OCTOMAP REQUIRED)
 find_package(octomap_msgs REQUIRED)
 find_package(tf2 REQUIRED)
@@ -154,9 +156,6 @@ ament_target_dependencies(image_to_gridmap_demo SYSTEM
   ${dependencies}
 )
 
-ament_target_dependencies(pointcloud2_to_gridmap_demo SYSTEM
-  ${dependencies}
-)
 
 ament_target_dependencies(
   octomap_to_gridmap_demo SYSTEM
@@ -188,6 +187,7 @@ ament_target_dependencies(
 
 target_link_libraries(filters_demo filters_demo_lib)
 
+
 ament_target_dependencies(
   filters_demo_lib SYSTEM
   ${dependencies}
@@ -195,8 +195,10 @@ ament_target_dependencies(
 )
 
 ament_target_dependencies(
-  filters_demo SYSTEM
+  pointcloud2_to_gridmap_demo SYSTEM
   ${dependencies}
+  grid_map_filters
+  grid_map_cv
   filters
 )
 

@@ -77,6 +77,7 @@ template<typename T>
 bool InpaintFilter<T>::update(const T & mapIn, T & mapOut)
 {
   // Add new layer to the elevation map.
+  
   mapOut = mapIn;
   mapOut.add(outputLayer_);
 
@@ -100,10 +101,8 @@ bool InpaintFilter<T>::update(const T & mapIn, T & mapOut)
     mapOut, inputLayer_, CV_8UC3, minValue, maxValue,
     originalImage);
   grid_map::GridMapCvConverter::toImage<unsigned char, 1>(mapOut, "inpaint_mask", CV_8UC1, mask);
-
   const double radiusInPixels = radius_ / mapIn.getResolution();
-  cv::inpaint(originalImage, mask, filledImage, radiusInPixels, cv::INPAINT_NS);
-
+  cv::inpaint(originalImage, mask, filledImage, radiusInPixels, cv::INPAINT_TELEA);
   grid_map::GridMapCvConverter::addLayerFromImage<unsigned char, 3>(
     filledImage, outputLayer_,
     mapOut, minValue, maxValue);

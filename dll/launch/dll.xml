@@ -7,7 +7,7 @@
   <arg name="initial_y" default="0.0"/>
   <arg name="initial_z" default="0.0"/>
   <arg name="initial_a" default="0.0"/> 
-  <arg name="map_path" default="/home/rangeronmars/ros2_ws/install/dll/share/dll/maps/3F.bt"/>
+  <arg name="map_path" default="/home/tup/ros2_ws/install/dll/share/dll/maps/133.bt"/>
 
 	<node pkg="dll" exec="dll_node" name="dll_node" output="screen">
     <remap from="/dll_node/initial_pose" to="/initialpose"/>
