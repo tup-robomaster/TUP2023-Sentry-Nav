@@ -34,7 +34,7 @@ def generate_launch_description():
             output='screen',
             emulate_tty=True,  # https://github.com/ros2/launch/issues/188
             parameters=[{'save_map_timeout': save_map_timeout},
-                        {"topic_name": "/projected"},
+                        {"topic_name": "/projected_map"},
                         {'free_thresh_default': free_thresh_default},
                         {'occupied_thresh_default': occupied_thresh_default}])
 

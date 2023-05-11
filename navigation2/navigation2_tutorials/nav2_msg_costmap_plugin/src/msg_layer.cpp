@@ -232,7 +232,7 @@ MsgLayer::updateCosts(nav2_costmap_2d::Costmap2D & master_grid, int min_i, int m
                 {
                     double cost;
                     cost = slope * 254;
-                    if (slope > 200)
+                    if (cost > 200)
                         cost = 254;
                     else
                         cost = 0;

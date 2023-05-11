@@ -95,6 +95,9 @@ private:
   //! Frame id of the grid map.
   std::string mapFrameId_;
 
+  //! Frame id of the grid map.
+  std::string baseFrameId_;
+
   //! Path to config file.
   std::string configFilePath_;
 

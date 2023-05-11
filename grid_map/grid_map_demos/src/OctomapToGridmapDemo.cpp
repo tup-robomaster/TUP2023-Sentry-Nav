@@ -49,8 +49,8 @@ bool OctomapToGridmapDemo::readParameters()
   this->declare_parameter("max_x", NAN);
   this->declare_parameter("min_y", NAN);
   this->declare_parameter("max_y", NAN);
-  this->declare_parameter("min_z", NAN);
-  this->declare_parameter("max_z", NAN);
+  this->declare_parameter("min_z", -0.2);
+  this->declare_parameter("max_z", 1.0);
 
   this->get_parameter("octomap_service_topic", octomapServiceTopic_);
   this->get_parameter("min_x", minX_);

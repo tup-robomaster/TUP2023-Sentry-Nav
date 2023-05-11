@@ -53,16 +53,15 @@ bool PointCloud2ToGridmapDemo::readParameters()
 {
     this->declare_parameter("pointcloud_topic", std::string("/stereo/points"));
     this->declare_parameter("map_frame_id", std::string());
+    this->declare_parameter("base_frame_id", std::string());
     this->declare_parameter("config_file_path", std::string());
-    this->declare_parameter("min_height", rclcpp::ParameterValue(0.0));
-    this->declare_parameter("max_height", rclcpp::ParameterValue(1.0));
     this->declare_parameter("integration_time", rclcpp::ParameterValue(0.5));
     this->declare_parameter("filter_chain_parameter_name", std::string("filters"));
+
     this->get_parameter("pointcloud_topic", pointCloud2Topic_);
     this->get_parameter("map_frame_id", mapFrameId_);
+    this->get_parameter("base_frame_id", baseFrameId_);
     this->get_parameter("config_file_path", configFilePath_);
-    this->get_parameter("min_height", minHeight_);
-    this->get_parameter("max_height", maxHeight_);
     this->get_parameter("integration_time", integration_time_);
     this->get_parameter("filter_chain_parameter_name", filterChainParametersName_);
 
@@ -79,38 +78,37 @@ void PointCloud2ToGridmapDemo::pointCloud2Callback(const sensor_msgs::msg::Point
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_filtered(new pcl::PointCloud<pcl::PointXYZ>);
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_trans(new pcl::PointCloud<pcl::PointXYZ>);
     pcl::fromROSMsg(*msg, *cloud_src);
+
+    //TODO: Pointcloud in other frames not implemented!
+    assert (mapFrameId_ == frame_id);
+
+    geometry_msgs::msg::TransformStamped tf_odom_to_base;
+    try
+    {
+        geometry_msgs::msg::TransformStamped tf_msg;
+        tf_odom_to_base = tfBuffer_->lookupTransform(mapFrameId_, baseFrameId_, msg->header.stamp, rclcpp::Duration::from_seconds(0.1));
+    }
+    catch (const tf2::TransformException &ex)
+    {
+        RCLCPP_ERROR(this->get_logger(), "%s",ex.what());
+        return;
+    }
+    Eigen::Vector3d xyz_base = {tf_odom_to_base.transform.translation.x,
+                                tf_odom_to_base.transform.translation.y,
+                                tf_odom_to_base.transform.translation.z};
+    std::cout<<"X: "<<tf_odom_to_base.transform.translation.x<<std::endl;
+    std::cout<<"Y: "<<tf_odom_to_base.transform.translation.y<<std::endl;
+
+    for (size_t i = 0; i < cloud_src->points.size(); i++)
+    {
+        Eigen::Vector3d xyz_pt = {cloud_src->points[i].x,
+                                    cloud_src->points[i].y,
+                                    cloud_src->points[i].z};
+        Eigen::Vector3d dxyz = xyz_pt - xyz_base;
+        if (dxyz.norm() > 0.5 && dxyz.norm() < 4)
+            (*cloud_filtered).points.push_back(cloud_src->points[i]);
+    }
     
-    // std::vector<int> indices;
-    // pcl::removeNaNFromPointCloud(*cloud_src,*cloud_filtered, indices);
-
-	// pcl::RadiusOutlierRemoval<pcl::PointXYZ> sor;   
-	// sor.setInputCloud(cloud_src);
-	// sor.setRadiusSearch(0.5);
-	// sor.setMinNeighborsInRadius(2);
-	// sor.setNegative(false); 
-	// sor.filter(*cloud_filtered);  
-
-    // Added Cond filter.
-    pcl::ConditionAnd<pcl::PointXYZ>::Ptr range_cond(new pcl::ConditionAnd<pcl::PointXYZ>());
-    pcl::ConditionalRemoval<pcl::PointXYZ> condrem;
-    range_cond->addComparison(pcl::FieldComparison<pcl::PointXYZ>::ConstPtr(
-            new pcl::FieldComparison<pcl::PointXYZ>("z", pcl::ComparisonOps::LT, 2.0)));
-    range_cond->addComparison(pcl::FieldComparison<pcl::PointXYZ>::ConstPtr(
-            new pcl::FieldComparison<pcl::PointXYZ>("z", pcl::ComparisonOps::GT, -2.0)));
-    range_cond->addComparison(pcl::FieldComparison<pcl::PointXYZ>::ConstPtr(
-            new pcl::FieldComparison<pcl::PointXYZ>("x", pcl::ComparisonOps::LT, 3.0)));
-    range_cond->addComparison(pcl::FieldComparison<pcl::PointXYZ>::ConstPtr(
-            new pcl::FieldComparison<pcl::PointXYZ>("x", pcl::ComparisonOps::GT, -3.0)));
-    range_cond->addComparison(pcl::FieldComparison<pcl::PointXYZ>::ConstPtr(
-            new pcl::FieldComparison<pcl::PointXYZ>("y", pcl::ComparisonOps::LT, 3.0)));
-    range_cond->addComparison(pcl::FieldComparison<pcl::PointXYZ>::ConstPtr(
-            new pcl::FieldComparison<pcl::PointXYZ>("y", pcl::ComparisonOps::GT, -3.0)));
-    condrem.setCondition(range_cond);
-    condrem.setInputCloud(cloud_src);
-    condrem.setKeepOrganized(true);
-    // apply filter
-    condrem.filter(*cloud_filtered);
-
     if (frame_id != mapFrameId_)
     {
         geometry_msgs::msg::TransformStamped tf_msg;
