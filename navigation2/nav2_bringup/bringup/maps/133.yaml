@@ -1,7 +1,7 @@
 image: 133.pgm
 mode: trinary
-resolution: 0.05
-origin: [-4.45, -7.1, 0]
+resolution: 0.1
+origin: [-7.6, -9.9, 0]
 negate: 0
 occupied_thresh: 0.65
 free_thresh: 0.25

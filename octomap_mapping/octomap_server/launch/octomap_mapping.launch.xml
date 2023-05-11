@@ -8,11 +8,12 @@
 -->
 <launch>
 	<node pkg="octomap_server" exec="octomap_server_node" name="octomap_server">
-		<param name="resolution" value="0.05" />
+		<param name="resolution" value="0.1" />
 
 		<!-- fixed map frame (set to 'map' if SLAM or localization running!) -->
 		<param name="frame_id" value="odom" />
-		<!-- <param name="sensor_model.min" value="0.4" /> -->
+		<param name="point_cloud_max_z" value="0.1" />
+		<param name="point_cloud_min_z" value="-0.1" />
 		<remap from="cloud_in" to="/lio_sam/mapping/cloud_registered_raw" />
 	</node>
 </launch>
