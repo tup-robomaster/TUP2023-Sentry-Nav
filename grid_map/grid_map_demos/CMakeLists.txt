@@ -97,6 +97,12 @@ add_executable(
 )
 
 add_executable(
+  pcd_to_gridmap_demo
+  src/pcd_to_gridmap_demo_node.cpp
+  src/PCDToGridmapDemo.cpp
+)
+
+add_executable(
   move_demo
   src/move_demo_node.cpp
 )
@@ -203,6 +209,14 @@ ament_target_dependencies(
 )
 
 ament_target_dependencies(
+  pcd_to_gridmap_demo SYSTEM
+  ${dependencies}
+  grid_map_filters
+  grid_map_cv
+  filters
+)
+
+ament_target_dependencies(
   normal_filter_comparison_demo SYSTEM
   ${dependencies}
   filters
@@ -218,6 +232,7 @@ set(targets_list
   filters_demo_lib
   image_to_gridmap_demo
   pointcloud2_to_gridmap_demo
+  pcd_to_gridmap_demo
   interpolation_demo
   iterator_benchmark
   iterators_demo

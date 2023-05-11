@@ -14,41 +14,39 @@ def generate_launch_description():
 
     # Declare launch configuration variables that can access the launch arguments values
     param_file = LaunchConfiguration('param_file')
-    rviz_config_file = LaunchConfiguration('rviz_config')
+    visualization_config_file = LaunchConfiguration('visualization_config')
 
     # Declare launch arguments
     declare_param_file_cmd = DeclareLaunchArgument(
         'param_file',
         default_value=os.path.join(
-            grid_map_demos_dir, 'config', 'octomap_to_gridmap_demo.yaml'),
+            grid_map_demos_dir, 'config', 'pcd_to_gridmap_demo.yaml'),
         description='Full path to the config file to use')
+
+    # Declare launch arguments
+    declare_visualization_config_file_cmd = DeclareLaunchArgument(
+        'visualization_config',
+        default_value=os.path.join(
+            grid_map_demos_dir, 'config', 'simple_demo.yaml'),
+        description='Full path to the Gridmap visualization config file to use')
 
     declare_rviz_config_file_cmd = DeclareLaunchArgument(
         'rviz_config',
         default_value=os.path.join(
-            grid_map_demos_dir, 'rviz', 'octomap_to_gridmap_demo.rviz'),
+            grid_map_demos_dir, 'rviz', 'grid_map_demo.rviz'),
         description='Full path to the RVIZ config file to use')
-
-    # Declare node actions
-
-    octomap_server_node = Node(
-        package='octomap_server',
-        executable='octomap_server_static_node',
-        name='octomap_server',
-        output='screen',
-        parameters=[
-            param_file,
-            {
-                'octomap_path': os.path.join(grid_map_demos_dir, 'data', '133.bt')
-            }
-        ],
-    )
-
-    octomap_to_gridmap_demo_node = Node(
+    
+    pcd_to_gridmap_demo_node = Node(
         package='grid_map_demos',
-        executable='octomap_to_gridmap_demo',
-        name='octomap_to_gridmap_demo',
-        output='screen'
+        executable='pcd_to_gridmap_demo',
+        name='pcd_to_gridmap',
+        parameters=[param_file,
+                    {
+                    "config_file_path" : os.path.join(grid_map_demos_dir, 'config', 'pcl_grid_config.yaml')
+                    }
+                ],
+        output="screen",
+        respawn=True
     )
 
     grid_map_visualization_node = Node(
@@ -56,15 +54,7 @@ def generate_launch_description():
         executable='grid_map_visualization',
         name='grid_map_visualization',
         output='screen',
-        parameters=[param_file]
-    )
-
-    rviz2_node = Node(
-        package='rviz2',
-        executable='rviz2',
-        name='rviz2',
-        output='screen',
-        arguments=['-d', rviz_config_file]
+        parameters=[visualization_config_file]
     )
 
     # Create the launch description and populate
@@ -73,11 +63,9 @@ def generate_launch_description():
     # Add launch arguments to the launch description
     ld.add_action(declare_param_file_cmd)
     ld.add_action(declare_rviz_config_file_cmd)
+    ld.add_action(declare_visualization_config_file_cmd)
 
     # Add node actions to the launch description
-    ld.add_action(octomap_server_node)
-    ld.add_action(octomap_to_gridmap_demo_node)
-    ld.add_action(grid_map_visualization_node)
-    ld.add_action(rviz2_node)
+    ld.add_action(pcd_to_gridmap_demo_node)
 
     return ld

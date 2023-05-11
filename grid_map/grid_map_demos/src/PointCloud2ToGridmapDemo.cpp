@@ -16,7 +16,7 @@ namespace grid_map_demos
 {
 
 PointCloud2ToGridmapDemo::PointCloud2ToGridmapDemo()
-: Node("pointcloud_to_gridmap_demo"),
+: Node("pointcloud2_to_gridmap_demo"),
   map_(grid_map::GridMap({"elevation"})),
   gridMapPclLoader(this->get_logger()),
   filterChain_("grid_map::GridMap")
@@ -54,15 +54,12 @@ bool PointCloud2ToGridmapDemo::readParameters()
     this->declare_parameter("pointcloud_topic", std::string("/stereo/points"));
     this->declare_parameter("map_frame_id", std::string());
     this->declare_parameter("config_file_path", std::string());
-    this->declare_parameter("min_height", rclcpp::ParameterValue(0.0));
-    this->declare_parameter("max_height", rclcpp::ParameterValue(1.0));
     this->declare_parameter("integration_time", rclcpp::ParameterValue(0.5));
     this->declare_parameter("filter_chain_parameter_name", std::string("filters"));
+
     this->get_parameter("pointcloud_topic", pointCloud2Topic_);
     this->get_parameter("map_frame_id", mapFrameId_);
     this->get_parameter("config_file_path", configFilePath_);
-    this->get_parameter("min_height", minHeight_);
-    this->get_parameter("max_height", maxHeight_);
     this->get_parameter("integration_time", integration_time_);
     this->get_parameter("filter_chain_parameter_name", filterChainParametersName_);
 
