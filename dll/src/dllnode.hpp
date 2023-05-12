@@ -158,8 +158,8 @@ public:
                     
         // Publish current TF from odom to map
         geometry_msgs::msg::TransformStamped global_2_odom_tf;
-        
-        global_2_odom_tf.header.stamp = last_pc_timestamp;
+        //Use current timestamp in order to avoid extrapolation into future error.
+        global_2_odom_tf.header.stamp = this->now();
         global_2_odom_tf.header.frame_id = m_globalFrameId;
         global_2_odom_tf.child_frame_id = m_odomFrameId;
         global_2_odom_tf.transform.translation.x = m_lastGlobalTf.getOrigin().getX();
