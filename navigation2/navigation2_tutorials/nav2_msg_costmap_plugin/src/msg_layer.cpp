@@ -141,34 +141,8 @@ void MsgLayer::callback(const grid_map_msgs::msg::GridMap::SharedPtr msg)
         map_ptr = std::make_shared<grid_map::GridMap>(grid_map);
     }
 
-    double timestamp = msg->header.stamp.sec + 1e-9 * msg->header.stamp.nanosec;
-    //Erase Map out of time decay.
-    std::vector<std::shared_ptr<grid_map::GridMap>> grid_map_vec_tmp;
-    std::vector<double> grid_map_timestamp_tmp;
-
-    for (int i=0; i<grid_map_timestamp.size(); i++)
-    {
-        if (abs(timestamp - grid_map_timestamp[i]) < time_decay_)
-        {
-            grid_map_vec_tmp.push_back(grid_map_vec[i]);
-            grid_map_timestamp_tmp.push_back(grid_map_timestamp[i]);
-        }
-    }
-
     map_lock_.lock();
-    grid_map_vec = grid_map_vec_tmp;
-    grid_map_timestamp = grid_map_timestamp_tmp;
     grid_map_ = map_ptr;
-
-    if (grid_map_vec.size() > 0)
-    {
-        for (int i=0; i < grid_map_vec.size();i++)
-        {
-            grid_map_->addDataFrom(*grid_map_vec[i],true,false,true);
-        }
-    }
-    grid_map_vec.emplace_back(map_ptr);
-    grid_map_timestamp.push_back(timestamp);
     map_lock_.unlock();
 
 }
@@ -194,7 +168,6 @@ MsgLayer::onFootprintChanged()
                                                                             layered_costmap_->getFootprint().size());
 }
 
-// The method is called when costmap recalculation is required.
 // It updates the costmap within its window bounds.
 // Inside this method the costmap msg is generated and is writing directly
 // to the resulting costmap master_grid without any merging with previous layers.
@@ -226,21 +199,27 @@ MsgLayer::updateCosts(nav2_costmap_2d::Costmap2D & master_grid, int min_i, int m
             int index = master_grid.getIndex(i, j);
             if (grid_map_->isInside(vec2d_map))
             {
+                double origin_cost = master_array[index];
+                // if (origin_cost != 0)
+                //     std::cout<<"C:"<<origin_cost<<std::endl;
                 double slope = grid_map_->atPosition("slope", vec2d_map);
                 double elevation = grid_map_->atPosition("elevation", vec2d_map);
-                if (!std::isnan(elevation) && !std::isnan(slope))
+                if (!std::isnan(elevation))
                 {
                     double cost;
-                    cost = slope * 254;
+                    if (!std::isnan(slope))
+                        cost = slope * 254;
+                    else 
+                        cost = (elevation + 0.2) * 254;
+                    
+                    if (origin_cost != 0)
+                        cost = (0.1 * origin_cost + 0.9 * cost);
+
                     if (cost > 200)
                         cost = 254;
                     else
                         cost = 0;
-                    // cost = abs(slope - 1) * 250;
-                    // if (cost > 100)
-                    //     cost = 254;
-                    // else
-                    //     cost = 0;
+                    
                     master_array[index] = cost;
                 }
             }

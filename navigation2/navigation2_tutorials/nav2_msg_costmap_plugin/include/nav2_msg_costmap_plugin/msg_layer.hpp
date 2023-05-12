@@ -101,8 +101,6 @@ private:
   std::shared_ptr<tf2_ros::TransformBroadcaster> tf_broadcaster_;
   std::shared_ptr<tf2_ros::TransformListener> tf_listener_;
   std::shared_ptr<grid_map::GridMap> grid_map_;
-  std::vector<std::shared_ptr<grid_map::GridMap>> grid_map_vec;
-  std::vector<double> grid_map_timestamp;
   tf2::Transform transform_projected_;
   std::mutex map_lock_;
   rclcpp::Subscription<grid_map_msgs::msg::GridMap>::SharedPtr subscriber_;

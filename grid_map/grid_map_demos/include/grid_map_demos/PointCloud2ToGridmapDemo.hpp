@@ -68,6 +68,8 @@ private:
   //! Grid map publisher.
   rclcpp::Publisher<grid_map_msgs::msg::GridMap>::SharedPtr gridMapPublisher_;
 
+  rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr integratedPublisher_;
+
   //! Grid map data.
   grid_map::GridMap map_;
 
@@ -82,7 +84,7 @@ private:
 
   double integration_time_;
 
-  //! Name of the grid map topic.
+  //! Name of the point cloud topic.
   std::string pointCloud2Topic_;
 
   //! Frame id of the grid map.
