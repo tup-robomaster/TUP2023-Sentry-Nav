@@ -7,8 +7,8 @@
  *
  */
 
-#ifndef GRID_MAP_DEMOS__POINTCLOUD2TOGRIDMAPDEMO_HPP_
-#define GRID_MAP_DEMOS__POINTCLOUD2TOGRIDMAPDEMO_HPP_
+#ifndef GRID_MAP_DEMOS__PCDTOGRIDMAPDEMO_HPP_
+#define GRID_MAP_DEMOS__PCDTOGRIDMAPDEMO_HPP_
 
 
 #include <filters/filter_chain.hpp>
@@ -42,19 +42,19 @@ namespace grid_map_demos
  * Loads an PointCloud2 and saves it as layer 'elevation' of a grid map.
  * The grid map is published and can be viewed in Rviz.
  */
-class PointCloud2ToGridmapDemo : public rclcpp::Node
+class PCDToGridmapDemo : public rclcpp::Node
 {
 public:
   /*!
    * Constructor.
    * @param nodeHandle the ROS node handle.
    */
-  PointCloud2ToGridmapDemo();
+  PCDToGridmapDemo();
 
   /*!
    * Destructor.
    */
-  virtual ~PointCloud2ToGridmapDemo();
+  virtual ~PCDToGridmapDemo();
 
   /*!
   * Reads and verifies the ROS parameters.
@@ -62,43 +62,32 @@ public:
   */
   bool readParameters();
 
-  void pointCloud2Callback(const sensor_msgs::msg::PointCloud2::SharedPtr msg);
+  void timerCallback();
 
 private:
   //! Grid map publisher.
   rclcpp::Publisher<grid_map_msgs::msg::GridMap>::SharedPtr gridMapPublisher_;
 
+  //! Grid map src.
+  pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_src;
+
+  rclcpp::TimerBase::SharedPtr updateTimer;
+
   //! Grid map data.
   grid_map::GridMap map_;
 
-  //! GridMapPclLoader
-  grid_map::GridMapPclLoader gridMapPclLoader;
-
-  //! PointCloud2 subscriber
-  rclcpp::Subscription<sensor_msgs::msg::PointCloud2>::SharedPtr pointCloud2Subscriber_;
-
-  std::deque<pcl::PointCloud<pcl::PointXYZ>::Ptr> pointcloud_deque_; 
-  std::deque<rclcpp::Time> timestamp_deque_;
-
-  double integration_time_;
-
-  //! Name of the grid map topic.
-  std::string pointCloud2Topic_;
 
   //! Frame id of the grid map.
   std::string mapFrameId_;
 
-  //! Frame id of the grid map.
-  std::string baseFrameId_;
+  //! Path to PCD file.
+  std::string PCDFilePath_;
+  
+  //! GridMapPclLoader
+  grid_map::GridMapPclLoader gridMapPclLoader;
 
   //! Path to config file.
   std::string configFilePath_;
-
-  //! TF Buffer
-  std::shared_ptr<tf2_ros::Buffer> tfBuffer_;
-
-  //! TF Listener
-  std::shared_ptr<tf2_ros::TransformListener> tfListener_;
 
   //! Filter chain.
   filters::FilterChain<grid_map::GridMap> filterChain_;

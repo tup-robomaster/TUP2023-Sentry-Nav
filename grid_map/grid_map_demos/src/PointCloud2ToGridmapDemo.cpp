@@ -16,7 +16,7 @@ namespace grid_map_demos
 {
 
 PointCloud2ToGridmapDemo::PointCloud2ToGridmapDemo()
-: Node("pointcloud_to_gridmap_demo"),
+: Node("pointcloud2_to_gridmap_demo"),
   map_(grid_map::GridMap({"elevation"})),
   gridMapPclLoader(this->get_logger()),
   filterChain_("grid_map::GridMap")
