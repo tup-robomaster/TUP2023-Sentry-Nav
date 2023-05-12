@@ -1,0 +1,7 @@
+image: 133_out_elev.pgm
+mode: trinary
+resolution: 0.1
+origin: [-14.8, -1.09, 0]
+negate: 0
+occupied_thresh: 0.65
+free_thresh: 0.25

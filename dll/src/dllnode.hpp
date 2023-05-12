@@ -342,9 +342,9 @@ private:
         tx = mapTf.getOrigin().getX();
         ty = mapTf.getOrigin().getY();
         tz = mapTf.getOrigin().getZ();
-        std::cout<<"Prior: "<<tx<<" , "<<ty<<" , "<<tz<<std::endl;
-        std::cout<<"DTX:"<<m_lastGlobalTf.getOrigin().getX()<<" : "<<m_lastGlobalTf.getOrigin().getY()<<" : " \ 
-                    <<m_lastGlobalTf.getOrigin().getZ()<<std::endl;
+        // std::cout<<"Prior: "<<tx<<" , "<<ty<<" , "<<tz<<std::endl;
+        // std::cout<<"DTX:"<<m_lastGlobalTf.getOrigin().getX()<<" : "<<m_lastGlobalTf.getOrigin().getY()<<" : " \ 
+        //             <<m_lastGlobalTf.getOrigin().getZ()<<std::endl;
 
         // Get estimated orientation into the map
         double roll, pitch, yaw;
@@ -404,6 +404,9 @@ private:
         }
         else
         {
+            double imu_roll,imu_pitch;
+            imu_roll = roll;
+            imu_pitch = pitch;
             if(m_alignMethod == 2) // NDT solver
             {
                 if (!m_grid3d.alignNDT(downCloud_vec, tx, ty, tz, roll, pitch, yaw))
@@ -413,6 +416,12 @@ private:
             {
                 if (!m_grid3d.alignICP(downCloud_vec, tx, ty, tz, roll, pitch, yaw))
                     return;
+            }
+            
+            if (abs(roll - imu_roll) > 0.5 || abs(pitch - imu_pitch) > 0.5)
+            {
+                roll = imu_roll;
+                pitch = imu_pitch;
             }
         }
         

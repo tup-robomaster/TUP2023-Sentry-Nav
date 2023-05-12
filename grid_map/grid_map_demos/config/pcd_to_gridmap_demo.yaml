@@ -1,6 +1,6 @@
 pcd_to_gridmap:
   ros__parameters:
-    pcd_file_path: "/home/rangeronmars/ros2_ws/test.pcd"
+    pcd_file_path: "/home/tup/Downloads/LOAM/GlobalMap.pcd"
     map_frame_id: "map"
     filters:
       filter1:  # Fill holes in the map with inpainting.
@@ -26,3 +26,5 @@ pcd_to_gridmap:
         params:
           output_layer: slope
           expression: acos(normal_vectors_z)
+
+

@@ -27,7 +27,7 @@ def generate_launch_description():
     declare_visualization_config_file_cmd = DeclareLaunchArgument(
         'visualization_config',
         default_value=os.path.join(
-            grid_map_demos_dir, 'config', 'simple_demo.yaml'),
+            grid_map_demos_dir, 'config', 'pcd_grid_rviz.yaml'),
         description='Full path to the Gridmap visualization config file to use')
 
     declare_rviz_config_file_cmd = DeclareLaunchArgument(
@@ -67,5 +67,5 @@ def generate_launch_description():
 
     # Add node actions to the launch description
     ld.add_action(pcd_to_gridmap_demo_node)
-
+    ld.add_action(grid_map_visualization_node)
     return ld

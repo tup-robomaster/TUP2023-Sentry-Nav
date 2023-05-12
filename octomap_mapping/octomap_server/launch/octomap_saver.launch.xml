@@ -19,7 +19,7 @@
 
 		<param name="point_cloud_max_z" value="0.1" />
 		<param name="point_cloud_min_z" value="-0.1" />
-		<param name="octomap_path" value="/home/tup/ros2_ws/src/TUP2023-Sentry-Framework/TUP2023-Sentry-Nav/dll/maps/133.bt" />
+		<param name="octomap_path" value="/home/tup/out.bt" />
 
 	</node>
 </launch>

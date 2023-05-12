@@ -35,7 +35,7 @@ def generate_launch_description():
         name='pointcloud2_to_gridmap',
         parameters=[param_file,
                     {
-                    "config_file_path" : os.path.join(grid_map_demos_dir, 'config', 'pcl_grid_config.yaml')
+                    "config_file_path" : os.path.join(grid_map_demos_dir, 'config', 'realtime_pcl_grid_config.yaml')
                     }
                 ],
         output="screen",
