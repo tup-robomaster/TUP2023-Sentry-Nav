@@ -36,8 +36,8 @@ def generate_launch_description():
             name='robot_state_publisher',
             output='screen',
             parameters=[{
-                'robot_description': Command(['xacro', ' ', xacro_path])
-            }]
+                'robot_description': Command(['xacro', ' ', xacro_path]),
+                "use_tf_static" : True}]
         ),
         Node(
             package='lio_sam',

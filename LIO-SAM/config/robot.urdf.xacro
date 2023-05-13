@@ -18,6 +18,7 @@
     <origin xyz="0 0 0" rpy="3.14 0 0" />
   </joint>
 
+
   <link name="imu_link"> </link>
   <joint name="imu_joint" type="fixed">
     <parent link="chassis_link" />
