@@ -84,6 +84,10 @@ private:
 
   double integration_time_;
 
+  double point_min_dist_;
+
+  double point_max_dist_;
+
   //! Name of the point cloud topic.
   std::string pointCloud2Topic_;
 

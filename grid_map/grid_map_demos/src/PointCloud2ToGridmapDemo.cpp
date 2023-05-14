@@ -57,7 +57,9 @@ bool PointCloud2ToGridmapDemo::readParameters()
     this->declare_parameter("map_frame_id", std::string());
     this->declare_parameter("base_frame_id", std::string());
     this->declare_parameter("config_file_path", std::string());
-    this->declare_parameter("integration_time", rclcpp::ParameterValue(0.5));
+    this->declare_parameter("integration_time", rclcpp::ParameterValue(0.0));
+    this->declare_parameter("point_min_dist", rclcpp::ParameterValue(0.35));
+    this->declare_parameter("point_max_dist", rclcpp::ParameterValue(4.0));
     this->declare_parameter("filter_chain_parameter_name", std::string("filters"));
 
     this->get_parameter("pointcloud_topic", pointCloud2Topic_);
@@ -65,9 +67,13 @@ bool PointCloud2ToGridmapDemo::readParameters()
     this->get_parameter("base_frame_id", baseFrameId_);
     this->get_parameter("config_file_path", configFilePath_);
     this->get_parameter("integration_time", integration_time_);
+    this->get_parameter("point_min_dist", point_min_dist_);
+    this->get_parameter("point_max_dist", point_max_dist_);
     this->get_parameter("filter_chain_parameter_name", filterChainParametersName_);
 
     gridMapPclLoader.loadParameters(configFilePath_);
+    RCLCPP_WARN(get_logger(), "Do remember, 'map_frame_id' must be set on a global frame like odom or map!");
+    
     return true;
 }
 
@@ -81,8 +87,6 @@ void PointCloud2ToGridmapDemo::pointCloud2Callback(const sensor_msgs::msg::Point
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_trans(new pcl::PointCloud<pcl::PointXYZ>);
     pcl::fromROSMsg(*msg, *cloud_src);
 
-    //TODO: Pointcloud in other frames not implemented!
-    assert (mapFrameId_ == frame_id);
     geometry_msgs::msg::TransformStamped tf_msg;
     try
     {
@@ -120,7 +124,7 @@ void PointCloud2ToGridmapDemo::pointCloud2Callback(const sensor_msgs::msg::Point
                                     cloud_trans->points[i].y,
                                     cloud_trans->points[i].z};
         Eigen::Vector3d dxyz = xyz_pt - xyz_base;
-        if (dxyz.norm() > 0.35 && dxyz.norm() < 4)
+        if (dxyz.norm() > point_min_dist_ && dxyz.norm() < point_max_dist_)
             (*cloud_filtered).points.push_back(cloud_trans->points[i]);
     }
 
