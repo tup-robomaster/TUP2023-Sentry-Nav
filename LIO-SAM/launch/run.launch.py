@@ -24,13 +24,6 @@ def generate_launch_description():
     return LaunchDescription([
         params_declare,
         Node(
-            package='tf2_ros',
-            executable='static_transform_publisher',
-            arguments='0.0 0.0 0.0 0.0 0.0 0.0 map odom'.split(' '),
-            parameters=[parameter_file],
-            output='screen'
-            ),
-        Node(
             package='robot_state_publisher',
             executable='robot_state_publisher',
             name='robot_state_publisher',
@@ -71,8 +64,14 @@ def generate_launch_description():
         package="tf2_ros",
         executable="static_transform_publisher",
         output="log" ,
-        arguments=["0", "0", "0", "0", "0", "3.14", "odom", "lidar_odom"]
+        arguments=["0", "0", "0", "0", "0", "0", "odom", "lidar_odom"]
         ),
+        # Node(
+        # package="tf2_ros",
+        # executable="static_transform_publisher",
+        # output="log" ,
+        # arguments=["0", "0", "0", "0", "0", "3.14", "odom", "lidar_odom"]
+        # ),
         Node(
             package='rviz2',
             executable='rviz2',
