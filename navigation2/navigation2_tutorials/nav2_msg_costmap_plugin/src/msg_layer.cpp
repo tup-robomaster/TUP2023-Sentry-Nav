@@ -153,10 +153,27 @@ void MsgLayer::updateBounds(
   double robot_x, double robot_y, double robot_yaw, double * min_x,
   double * min_y, double * max_x, double * max_y)
 {
-    *min_x = robot_x - 3;
-    *max_x = robot_x + 3;
-    *min_y = robot_y - 3;
-    *max_y = robot_y + 3;
+    double min_x_tmp,
+    max_x_tmp,
+    min_y_tmp,
+    max_y_tmp;
+    min_x_tmp = robot_x - 3;
+    max_x_tmp = robot_x + 3;
+    min_y_tmp = robot_y - 3;
+    max_y_tmp = robot_y + 3;
+
+    //prevent illegal robot_pos
+    if (abs(robot_x) < 1e3 && abs(robot_y) < 1e3)
+    {
+        *min_x = min_x_tmp;
+        *min_y = min_y_tmp;
+        *max_x = max_x_tmp;
+        *max_y = max_y_tmp;
+    }
+    else
+    {
+        RCLCPP_WARN(rclcpp::get_logger("nav2_costmap_2d"), "Illegal robot pos detected! X:%.f ,Y:%.f", robot_x, robot_y);
+    }
 }
 
 // The method is called when footprint was changed.

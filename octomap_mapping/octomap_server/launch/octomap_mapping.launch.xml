@@ -12,8 +12,8 @@
 
 		<!-- fixed map frame (set to 'map' if SLAM or localization running!) -->
 		<param name="frame_id" value="odom" />
-		<param name="point_cloud_max_z" value="0.1" />
-		<param name="point_cloud_min_z" value="-0.1" />
+		<param name="point_cloud_max_z" value="0.3" />
+		<param name="point_cloud_min_z" value="-0.3" />
 		<remap from="cloud_in" to="/lio_sam/mapping/cloud_registered_raw" />
 	</node>
 </launch>

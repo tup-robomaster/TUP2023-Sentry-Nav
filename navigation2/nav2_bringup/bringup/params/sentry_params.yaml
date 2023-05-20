@@ -54,7 +54,7 @@ bt_navigator_rclcpp_node:
 controller_server:
   ros__parameters:
     use_sim_time: True
-    controller_frequency: 20.0
+    controller_frequency: 40.0
     min_x_velocity_threshold: 0.001
     min_y_velocity_threshold: 0.1
     min_theta_velocity_threshold: 0.001
@@ -91,12 +91,12 @@ controller_server:
       publish_feedback: False
           
       # Robot
-      max_vel_x: 1.2
+      max_vel_x: 1.0
       # max_vel_x_backwards: -0.5
-      max_vel_y: 0.9
-      max_vel_theta: 3.0
+      max_vel_y: 1.0
+      max_vel_theta: 6.0
       acc_lim_x: 2.0
-      acc_lim_theta: 3.0
+      acc_lim_theta: 6.0
       footprint_model: # types: "point", "circular", "two_circles", "line", "polygon"
       #   type: "line"
       #   line_start: [-0.25, 0.0]
@@ -126,10 +126,10 @@ controller_server:
       weight_max_vel_x: 2.0
       weight_max_vel_theta: 2.0
       weight_acc_lim_x: 0.7
-      weight_acc_lim_theta: 5.0
+      weight_acc_lim_theta: 10.0
       weight_kinematics_nh: 60.0
       weight_kinematics_forward_drive: 2000.0
-      weight_kinematics_turning_radius: 2.0
+      weight_kinematics_turning_radius: 4.0
       weight_optimaltime: 10.0 # must be > 0
       weight_shortest_path: 0.1
       weight_obstacle: 300.0
