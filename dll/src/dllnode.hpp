@@ -410,12 +410,18 @@ private:
             if(m_alignMethod == 2) // NDT solver
             {
                 if (!m_grid3d.alignNDT(downCloud_vec, tx, ty, tz, roll, pitch, yaw))
+                {
+                    m_lastGlobalTf = tf2::Transform();
                     return;
+                }
             }
             else if(m_alignMethod == 3) // ICP solver
             {
                 if (!m_grid3d.alignICP(downCloud_vec, tx, ty, tz, roll, pitch, yaw))
+                {
+                    m_lastGlobalTf = tf2::Transform();
                     return;
+                }
             }
             
             if (abs(roll - imu_roll) > 0.5 || abs(pitch - imu_pitch) > 0.5)
