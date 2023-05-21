@@ -95,7 +95,8 @@ controller_server:
       # max_vel_x_backwards: -0.5
       max_vel_y: 1.0
       max_vel_theta: 6.0
-      acc_lim_x: 2.0
+      acc_lim_x: 0.5
+      acc_lim_y: 0.5
       acc_lim_theta: 6.0
       footprint_model: # types: "point", "circular", "two_circles", "line", "polygon"
       #   type: "line"

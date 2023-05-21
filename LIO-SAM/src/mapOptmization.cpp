@@ -320,6 +320,9 @@ public:
 
             updateInitialGuess();
 
+            std::cout<<"Init guess:"<<transformTobeMapped[0]<<" : "<<transformTobeMapped[1]<<" : "<<transformTobeMapped[2]<<" : " \
+                        <<transformTobeMapped[3]<<" : "<<transformTobeMapped[4]<<" : "<<transformTobeMapped[5]<<std::endl;
+
             extractSurroundingKeyFrames();
 
             downsampleCurrentScan();
@@ -818,7 +821,6 @@ public:
                 Eigen::Affine3f transFinal = transTobe * transIncre;
                 pcl::getTranslationAndEulerAngles(transFinal, transformTobeMapped[3], transformTobeMapped[4], transformTobeMapped[5], 
                                                               transformTobeMapped[0], transformTobeMapped[1], transformTobeMapped[2]);
-
                 lastImuPreTransformation = transBack;
 
                 lastImuTransformation = pcl::getTransformation(0, 0, 0, cloudInfo.imu_roll_init, cloudInfo.imu_pitch_init, cloudInfo.imu_yaw_init); // save imu before return;
@@ -1332,7 +1334,7 @@ public:
                 transformTobeMapped[1] = pitchMid;
             }
         }
-        std::cout<<transformTobeMapped[0]<<" : "<<transformTobeMapped[1]<<" : "<<transformTobeMapped[2]<<" : " \
+        std::cout<<"After opt:"<<transformTobeMapped[0]<<" : "<<transformTobeMapped[1]<<" : "<<transformTobeMapped[2]<<" : " \
                     <<transformTobeMapped[3]<<" : "<<transformTobeMapped[4]<<" : "<<transformTobeMapped[5]<<std::endl;
         transformTobeMapped[0] = constraintTransformation(transformTobeMapped[0], rotation_tollerance);
         transformTobeMapped[1] = constraintTransformation(transformTobeMapped[1], rotation_tollerance);

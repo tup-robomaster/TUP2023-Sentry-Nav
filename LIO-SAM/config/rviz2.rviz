@@ -53,8 +53,8 @@ Visualization Manager:
     - Alpha: 1
       Autocompute Intensity Bounds: true
       Autocompute Value Bounds:
-        Max Value: 1.0072730779647827
-        Min Value: -1.268196702003479
+        Max Value: 1.5014145374298096
+        Min Value: -0.38352710008621216
         Value: true
       Axis: Z
       Channel Name: intensity
@@ -109,6 +109,8 @@ Visualization Manager:
           Value: false
         odom:
           Value: true
+        virt_heading_frame:
+          Value: true
       Marker Scale: 1
       Name: TF
       Show Arrows: true
@@ -128,6 +130,8 @@ Visualization Manager:
                   navsat_link:
                     {}
                 livox_frame:
+                  {}
+                virt_heading_frame:
                   {}
       Update Interval: 0
       Value: true
@@ -368,7 +372,7 @@ Visualization Manager:
       Name: Marker
       Namespaces:
         PolyObstacles: true
-        ViaPoints: true
+        RobotFootprintModel: true
       Topic:
         Depth: 5
         Durability Policy: Volatile
@@ -409,6 +413,26 @@ Visualization Manager:
         History Policy: Keep Last
         Reliability Policy: Reliable
         Value: /teb_poses
+      Value: true
+    - Alpha: 1
+      Axes Length: 1
+      Axes Radius: 0.10000000149011612
+      Class: rviz_default_plugins/Pose
+      Color: 255; 25; 0
+      Enabled: true
+      Head Length: 0.30000001192092896
+      Head Radius: 0.10000000149011612
+      Name: Pose
+      Shaft Length: 1
+      Shaft Radius: 0.05000000074505806
+      Shape: Arrow
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        Filter size: 10
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /goal_pose
       Value: true
   Enabled: true
   Global Options:
@@ -456,7 +480,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz_default_plugins/Orbit
-      Distance: 8.320768356323242
+      Distance: 11.192307472229004
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1

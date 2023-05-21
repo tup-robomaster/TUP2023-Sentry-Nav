@@ -33,9 +33,9 @@
 
     # IMU Settings
     imuAccNoise: 0.01
-    imuGyrNoise: 0.01
+    imuGyrNoise: 0.001
     imuAccBiasN: 0.001
-    imuGyrBiasN: 0.001
+    imuGyrBiasN: 0.0001
 
     imuGravity: -9.8
     imuRPYWeight: 0.01
