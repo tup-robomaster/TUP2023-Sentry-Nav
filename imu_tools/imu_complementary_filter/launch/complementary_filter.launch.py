@@ -16,6 +16,7 @@ def generate_launch_description():
                     {'use_mag': False},
                     {'gain_acc': 1e-2},
                     {'gain_mag': 0.01},
+                    {'filter_hz': 25.0}
                 ],
                 remappings=[
                     ('/imu/data_raw', '/livox/imu')

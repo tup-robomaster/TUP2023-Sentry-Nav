@@ -99,6 +99,7 @@ void ComplementaryFilterROS::initializeParams()
     double bias_alpha;
     bool do_adaptive_gain;
     double orientation_stddev;
+    double filter_hz;
 
     fixed_frame_ = this->declare_parameter<std::string>("fixed_frame", "odom");
     use_mag_ = this->declare_parameter<bool>("use_mag", false);
@@ -115,6 +116,7 @@ void ComplementaryFilterROS::initializeParams()
     do_adaptive_gain = this->declare_parameter<bool>("do_adaptive_gain", true);
     orientation_stddev =
         this->declare_parameter<double>("orientation_stddev", 0.0);
+    filter_hz = this->declare_parameter<double>("filter_hz", 25.0);
     orientation_variance_ = orientation_stddev * orientation_stddev;
 
     filter_.setDoBiasEstimation(do_bias_estimation);
@@ -147,14 +149,57 @@ void ComplementaryFilterROS::initializeParams()
             constant_dt_);
         constant_dt_ = 0.0;
     }
+    filter_hz_ = filter_hz;
 }
 
 void ComplementaryFilterROS::imuCallback(ImuMsg::ConstSharedPtr imu_msg_raw)
 {
-    geometry_msgs::msg::Vector3 a = imu_msg_raw->linear_acceleration;
-    // a.y=-a.y;
-    geometry_msgs::msg::Vector3 w = imu_msg_raw->angular_velocity;
-    const rclcpp::Time &time = imu_msg_raw->header.stamp;
+
+    //Freq filter
+    if (!imu_data_deque.size())
+    {
+        imu_data_deque.push_front(*imu_msg_raw);
+        return;
+    }
+    ImuMsg imu_msg_selected;
+    geometry_msgs::msg::Vector3 a,w;
+    rclcpp::Time time;
+    ImuMsg::ConstSharedPtr imu_filtered_ptr;;
+
+    rclcpp::Time t_now((*imu_msg_raw).header.stamp);
+    for (int i=0; i < imu_data_deque.size(); i++)
+    {
+        rclcpp::Time t_bef(imu_data_deque[i].header.stamp);
+        double dura = (t_now.nanoseconds() - t_bef.nanoseconds()) * 1e-9;
+        double hz = 1 / dura;
+        if (abs(hz - (filter_hz_ * 2)) < 5)
+        {
+            imu_msg_selected = imu_data_deque[i];
+            imu_msg_selected.linear_acceleration.x = (imu_msg_selected.linear_acceleration.x
+                                                        + (*imu_msg_raw).linear_acceleration.x) / 2.f;
+            imu_msg_selected.linear_acceleration.y = (imu_msg_selected.linear_acceleration.y
+                                                        + (*imu_msg_raw).linear_acceleration.y) / 2.f;
+            imu_msg_selected.linear_acceleration.z = (imu_msg_selected.linear_acceleration.z
+                                                        + (*imu_msg_raw).linear_acceleration.z) / 2.f;
+            imu_msg_selected.angular_velocity.x = (imu_msg_selected.angular_velocity.x
+                                                        + (*imu_msg_raw).angular_velocity.x) / 2.f;
+            imu_msg_selected.angular_velocity.y = (imu_msg_selected.angular_velocity.y
+                                                        + (*imu_msg_raw).angular_velocity.y) / 2.f;
+            imu_msg_selected.angular_velocity.z = (imu_msg_selected.angular_velocity.z
+                                                        + (*imu_msg_raw).angular_velocity.z) / 2.f;
+            imu_filtered_ptr = std::make_shared<ImuMsg>(imu_msg_selected);
+            imu_data_deque.resize(i);
+            break;
+        }
+        else if(i == imu_data_deque.size() - 1)
+        {
+            imu_filtered_ptr = imu_msg_raw;
+        }
+    }
+    imu_data_deque.push_front(*imu_msg_raw);
+    a = imu_filtered_ptr->linear_acceleration;
+    w = imu_filtered_ptr->angular_velocity;
+    time = rclcpp::Time(imu_filtered_ptr->header.stamp);
 
     // Initialize.
     if (!initialized_filter_)
@@ -177,7 +222,7 @@ void ComplementaryFilterROS::imuCallback(ImuMsg::ConstSharedPtr imu_msg_raw)
     filter_.update(a.x, a.y, a.z, w.x, w.y, w.z, dt);
 
     // Publish state.
-    publish(imu_msg_raw);
+    publish(imu_filtered_ptr);
 }
 
 void ComplementaryFilterROS::imuMagCallback(ImuMsg::ConstSharedPtr imu_msg_raw,

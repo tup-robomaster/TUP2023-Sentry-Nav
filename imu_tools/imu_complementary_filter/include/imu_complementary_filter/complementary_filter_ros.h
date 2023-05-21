@@ -46,7 +46,7 @@
 #include <tf2/LinearMath/Quaternion.h>
 #include <tf2_ros/transform_broadcaster.h>
 #include <memory>
-
+#include <deque>
 #include "imu_complementary_filter/complementary_filter.h"
 
 namespace imu_tools {
@@ -73,6 +73,8 @@ class ComplementaryFilterROS : public rclcpp::Node
     std::shared_ptr<MagSubscriber> mag_subscriber_;
     std::shared_ptr<Synchronizer> sync_;
 
+    std::deque<ImuMsg> imu_data_deque;
+
     rclcpp::Publisher<ImuMsg>::SharedPtr imu_publisher_;
     rclcpp::Publisher<RpyVectorMsg>::SharedPtr rpy_publisher_;
     rclcpp::Publisher<std_msgs::msg::Bool>::SharedPtr state_publisher_;
@@ -83,6 +85,7 @@ class ComplementaryFilterROS : public rclcpp::Node
     bool publish_tf_{};
     bool reverse_tf_{};
     double constant_dt_{};
+    double filter_hz_{};
     bool publish_debug_topics_{};
     std::string fixed_frame_;
     double orientation_variance_{};
