@@ -91,9 +91,9 @@ controller_server:
       publish_feedback: False
           
       # Robot
-      max_vel_x: 1.0
+      max_vel_x: 1.5
       # max_vel_x_backwards: -0.5
-      max_vel_y: 1.0
+      max_vel_y: 1.5
       max_vel_theta: 6.0
       acc_lim_x: 0.5
       acc_lim_y: 0.5
@@ -128,11 +128,11 @@ controller_server:
       weight_max_vel_theta: 2.0
       weight_acc_lim_x: 0.7
       weight_acc_lim_theta: 10.0
-      weight_kinematics_nh: 60.0
+      weight_kinematics_nh: 50.0
       weight_kinematics_forward_drive: 2000.0
       weight_kinematics_turning_radius: 4.0
       weight_optimaltime: 10.0 # must be > 0
-      weight_shortest_path: 0.1
+      weight_shortest_path: 0.3
       weight_obstacle: 300.0
       weight_inflation: 20.0
       weight_dynamic_obstacle: 10.0 # not in use yet
@@ -199,7 +199,7 @@ local_costmap:
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
         cost_scaling_factor: 3.0
-        inflation_radius: 0.2
+        inflation_radius: 0.15
   local_costmap_client:
     ros__parameters:
       use_sim_time: True
@@ -229,7 +229,7 @@ global_costmap:
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
         cost_scaling_factor: 3.0
-        inflation_radius: 0.1
+        inflation_radius: 0.2
       always_send_full_costmap: True
   global_costmap_client:
     ros__parameters:

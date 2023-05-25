@@ -172,7 +172,7 @@ void ComplementaryFilterROS::imuCallback(ImuMsg::ConstSharedPtr imu_msg_raw)
         rclcpp::Time t_bef(imu_data_deque[i].header.stamp);
         double dura = (t_now.nanoseconds() - t_bef.nanoseconds()) * 1e-9;
         double hz = 1 / dura;
-        if (abs(hz - (filter_hz_ * 2)) < 5)
+        if (abs(hz - (filter_hz_ * 2)) < 7)
         {
             imu_msg_selected = imu_data_deque[i];
             imu_msg_selected.linear_acceleration.x = (imu_msg_selected.linear_acceleration.x

@@ -28,8 +28,8 @@
     Horizon_SCAN: 5000                            # lidar horizontal resolution (Velodyne:1800, Ouster:512,1024,2048, Livox Horizon: 4000)
     downsampleRate: 1                            # default: 1. Downsample your data if too many
     # points. i.e., 16 = 64 / 4, 16 = 16 / 1
-    lidarMinRange: 0.5                           # default: 1.0, minimum lidar range to be used
-    lidarMaxRange: 100.0                        # default: 1000.0, maximum lidar range to be used
+    lidarMinRange: 0.4                           # default: 1.0, minimum lidar range to be used
+    lidarMaxRange: 30.0                        # default: 1000.0, maximum lidar range to be used
 
     # IMU Settings
     imuAccNoise: 0.01

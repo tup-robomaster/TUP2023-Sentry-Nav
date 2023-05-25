@@ -230,12 +230,13 @@ MsgLayer::updateCosts(nav2_costmap_2d::Costmap2D & master_grid, int min_i, int m
                         cost = (elevation + 0.2) * 254;
                     
                     if (origin_cost != 0)
-                        cost = (0.1 * origin_cost + 0.9 * cost);
+                        cost = (0.8 * origin_cost + 0.6 * cost);
 
                     if (cost > 200)
                         cost = 254;
                     else
-                        cost = 0;
+                        // cost = 0;
+                        continue;
                     
                     master_array[index] = cost;
                 }
