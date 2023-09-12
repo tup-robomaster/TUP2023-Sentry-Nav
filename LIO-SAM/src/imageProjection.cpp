@@ -588,7 +588,7 @@ public:
             thisPoint.intensity = laserCloudIn->points[i].intensity;
 
             float range = pointDistance(thisPoint);
-            if (range < lidarMinRange || range > lidarMaxRange)
+            if (range < lidarMinRange || (range < (lidarMinRange + 0.1) && thisPoint.z > 0.03) || range > lidarMaxRange || thisPoint.z > 1.0)
                 continue;
 
             int rowIdn = laserCloudIn->points[i].ring;

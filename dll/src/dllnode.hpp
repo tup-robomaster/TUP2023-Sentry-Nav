@@ -148,14 +148,9 @@ public:
     ~DLLNode()
     {
     }
-        
-    //! Check motion and time thresholds for AMCL update
-    bool checkUpdateThresholds()
+
+    bool sendLatestTransform()
     {
-        // If the filter is not initialized then exit
-        if(!m_init)
-            return false;
-                    
         // Publish current TF from odom to map
         geometry_msgs::msg::TransformStamped global_2_odom_tf;
         //Use current timestamp in order to avoid extrapolation into future error.
@@ -170,8 +165,17 @@ public:
         global_2_odom_tf.transform.rotation.z = m_lastGlobalTf.getRotation().getZ();
         global_2_odom_tf.transform.rotation.w = m_lastGlobalTf.getRotation().getW();
         m_tfBr->sendTransform(global_2_odom_tf);
-        
-        
+        return true;
+    }
+
+    //! Check motion and time thresholds for AMCL update
+    bool checkUpdateThresholds()
+    {
+        // If the filter is not initialized then exit
+        if(!m_init)
+            return false;
+        sendLatestTransform();
+
         // Compute odometric translation and rotation since last update 
         tf2::Transform odomTf;
         geometry_msgs::msg::TransformStamped odomTf_msg;
@@ -219,7 +223,8 @@ public:
             m_lastPeriodicUpdate = timestamp;
             return true;
         }
-        
+
+        sendLatestTransform();
         return false;
     }
                                            

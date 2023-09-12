@@ -1,9 +1,19 @@
 pointcloud2_to_gridmap:
   ros__parameters:
-    pointcloud_topic: "/lio_sam/mapping/cloud_registered_raw"
+
+    # #For LIO-SAM
+    # pointcloud_topic: "/lio_sam/mapping/cloud_registered"
+    # map_frame_id: "odom"
+    # base_frame_id: "base_link"
+    # integration_time: 0.6
+
+    # For FAST_LIO
+    pointcloud_topic: "cloud_registered"
     map_frame_id: "odom"
     base_frame_id: "base_link"
-    integration_time: 1.0
+    integration_time: 0.6
+
+
     filters:
       filter1:  # Fill holes in the map with inpainting.
         name: inpaint

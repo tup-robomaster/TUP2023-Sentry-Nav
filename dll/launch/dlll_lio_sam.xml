@@ -7,7 +7,7 @@
   <arg name="initial_y" default="0.0"/>
   <arg name="initial_z" default="0.0"/>
   <arg name="initial_a" default="0.0"/> 
-  <arg name="map_path" default="/home/tup/ros2_ws/install/dll/share/dll/maps/133_out.bt"/>
+  <arg name="map_path" default="/home/tup/ros2_ws/install/dll/share/dll/maps/RMUC.bt"/>
 
 	<node pkg="dll" exec="dll_node" name="dll_node" output="screen">
     <remap from="/dll_node/initial_pose" to="/initialpose"/>
@@ -16,17 +16,17 @@
     <param name="odom_frame_id" value="$(var odom_frame_id)" />
     <param name="global_frame_id" value="$(var global_frame_id)" />
 
-    <param name="rate" value="10.0" />
+    <param name="update_rate" value="30.0" />
     <param name="align_method" value="3"/>
     <param name="map_path" value="$(var map_path)" />
     <param name="publish_point_cloud" value="true" />    
-    <param name="update_min_d" value="0.1" />
-    <param name="update_min_a" value="0.1" />
+    <param name="update_min_d" value="2.0" />
+    <param name="update_min_a" value="1.0" />
     <param name="initial_x"   value="$(var initial_x)"/>
     <param name="initial_y"   value="$(var initial_y)"/>
     <param name="initial_z"   value="$(var initial_z)"/>
     <param name="initial_a"   value="$(var initial_a)"/>
-    <param name="update_min_time" value="0.1" />
+    <param name="update_min_time" value="2.0" />
     <param name="use_imu" value="true" />
   </node>
 

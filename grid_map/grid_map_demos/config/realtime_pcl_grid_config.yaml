@@ -1,5 +1,5 @@
 pcl_grid_map_extraction:
-  num_processing_threads: 2
+  num_processing_threads: 1
   cloud_transform:
     is_apply_rigidbody_trans: false
     translation:
@@ -21,11 +21,11 @@ pcl_grid_map_extraction:
   downsampling:
     is_downsample_cloud: true
     voxel_size:
-      x: 0.025
-      y: 0.025
-      z: 0.025
+      x: 0.05
+      y: 0.05
+      z: 0.05
   grid_map:
-    min_num_points_per_cell: 2
+    min_num_points_per_cell: 1
     resolution: 0.1
     # 0: Smallest value among the average values ​​of each cluster
     # 1: Mean value of the cluster with the most points

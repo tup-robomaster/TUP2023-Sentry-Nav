@@ -1,0 +1,19 @@
+<!--
+  Example launch file for octomap_server mapping:
+  Listens to incoming PointCloud2 data and incrementally builds an octomap.
+  The data is sent out in different representations.
+
+  Copy this file into your workspace and adjust as needed, see
+  www.ros.org/wiki/octomap_server for details
+-->
+<launch>
+	<node pkg="octomap_server" exec="octomap_server_node" name="octomap_server">
+		<param name="resolution" value="0.1" />
+
+		<!-- fixed map frame (set to 'map' if SLAM or localization running!) -->
+		<param name="frame_id" value="odom" />
+		<param name="point_cloud_max_z" value="2.0" />
+		<param name="point_cloud_min_z" value="-2.0" />
+		<remap from="cloud_in" to="/cloud_registered" />
+	</node>
+</launch>

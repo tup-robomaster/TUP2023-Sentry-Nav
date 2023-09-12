@@ -29,7 +29,7 @@
     downsampleRate: 1                            # default: 1. Downsample your data if too many
     # points. i.e., 16 = 64 / 4, 16 = 16 / 1
     lidarMinRange: 0.4                           # default: 1.0, minimum lidar range to be used
-    lidarMaxRange: 30.0                        # default: 1000.0, maximum lidar range to be used
+    lidarMaxRange: 10.0                        # default: 1000.0, maximum lidar range to be used
 
     # IMU Settings
     imuAccNoise: 0.01
@@ -53,7 +53,7 @@
     # LOAM feature threshold
     edgeThreshold: 0.1
     surfThreshold: 0.1
-    edgeFeatureMinValidNum: 2
+    edgeFeatureMinValidNum: 4
     surfFeatureMinValidNum: 100
 
     # voxel filter paprams
@@ -66,7 +66,7 @@
     rotation_tollerance: 1000.0                   # radians
 
     # CPU Params
-    numberOfCores: 4                              # number of cores for mapping optimization
+    numberOfCores: 2                              # number of cores for mapping optimization
     mappingProcessInterval: 0.05                  # seconds, regulate mapping frequency
 
     # Surrounding map
@@ -77,7 +77,7 @@
     # (when loop closure disabled)
 
     # Loop closure
-    loopClosureEnableFlag: true
+    loopClosureEnableFlag: false
     loopClosureFrequency: 2.0                     # Hz, regulate loop closure constraint add frequency
     surroundingKeyframeSize: 50                   # submap size (when loop closure enabled)
     historyKeyframeSearchRadius: 10.0             # meters, key frame that is within n meters from
@@ -86,7 +86,7 @@
     # considered for loop closure
     historyKeyframeSearchNum: 25                  # number of hostory key frames will be fused into a
     # submap for loop closure
-    historyKeyframeFitnessScore: 0.3              # icp threshold, the smaller the better alignment
+    historyKeyframeFitnessScore: 0.1              # icp threshold, the smaller the better alignment
 
     # Visualization
     globalMapVisualizationSearchRadius: 1000.0    # meters, global map visualization radius

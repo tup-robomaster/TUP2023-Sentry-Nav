@@ -27,7 +27,7 @@ def generate_launch_description():
             package='robot_state_publisher',
             executable='robot_state_publisher',
             name='robot_state_publisher',
-            output='screen',
+            output='log',
             parameters=[{
                 'robot_description': Command(['xacro', ' ', xacro_path]),
                 "use_tf_static" : True}]
@@ -37,52 +37,60 @@ def generate_launch_description():
             executable='lio_sam_imuPreintegration',
             name='lio_sam_imuPreintegration',
             parameters=[parameter_file],
-            output='screen'
+            output='log'
         ),
         Node(
             package='lio_sam',
             executable='lio_sam_imageProjection',
             name='lio_sam_imageProjection',
             parameters=[parameter_file],
-            output='screen'
+            output='log'
         ),
         Node(
             package='lio_sam',
             executable='lio_sam_featureExtraction',
             name='lio_sam_featureExtraction',
             parameters=[parameter_file],
-            output='screen'
+            output='log'
         ),
         Node(
             package='lio_sam',
             executable='lio_sam_mapOptimization',
             name='lio_sam_mapOptimization',
             parameters=[parameter_file],
-            output='screen'
+            output='log'
         ),
         Node(
-        package="tf2_ros",
-        executable="static_transform_publisher",
-        output="log" ,
-        arguments=["0", "0", "0", "-1.57", "0", "3.14", "odom", "lidar_odom"]
+            package="tf2_ros",
+            executable="static_transform_publisher",
+            arguments=["0", "0", "0", "-1.57", "0", "3.14", "odom", "lidar_odom"]
         ),
         Node(
-        package="tf2_ros",
-        executable="static_transform_publisher",
-        output="log" ,
-        arguments=["0", "0", "0", "0", "0", "0", "map", "odom"]
+            package="tf2_ros",
+            executable="static_transform_publisher",
+            arguments=["-2", "0", "0", "0", "0", "0", "map", "odom"]
         ),
+        Node(
+            package="tf2_ros",
+            executable="static_transform_publisher",
+            arguments=["6.5", "7.47", "0", "0", "0", "3.14", "map_decision", "map"]
+        ),
+        # Node(
+        #     package="tf2_ros",
+        #     executable="static_transform_publisher",
+        #     arguments=["4.3", "7.47", "0", "0", "0", "3.14", "map_decision", "map"]
+        # ),
         # Node(
         # package="tf2_ros",
         # executable="static_transform_publisher",
         # output="log" ,
         # arguments=["0", "0", "0", "0", "0", "3.14", "odom", "lidar_odom"]
         # ),
-        Node(
-            package='rviz2',
-            executable='rviz2',
-            name='rviz2',
-            arguments=['-d', rviz_config_file],
-            output='screen'
-        )
+        # Node(
+        #     package='rviz2',
+        #     executable='rviz2',
+        #     name='rviz2',
+        #     arguments=['-d', rviz_config_file],
+        #     output='screen'
+        # )
     ])

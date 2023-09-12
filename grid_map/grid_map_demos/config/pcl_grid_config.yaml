@@ -9,7 +9,7 @@ pcl_grid_map_extraction:
     rotation: #intrinsic rotation X-Y-Z (r-p-y)sequence
       r: 3.14
       p: 0.0
-      y: 0.0
+      y: 1.57
   cluster_extraction:
     cluster_tolerance: 0.05
     min_num_points: 1

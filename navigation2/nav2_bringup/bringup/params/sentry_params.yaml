@@ -91,9 +91,9 @@ controller_server:
       publish_feedback: False
           
       # Robot
-      max_vel_x: 1.5
+      max_vel_x: 2.0
       # max_vel_x_backwards: -0.5
-      max_vel_y: 1.5
+      max_vel_y: 2.0
       max_vel_theta: 6.0
       acc_lim_x: 0.5
       acc_lim_y: 0.5
@@ -124,14 +124,14 @@ controller_server:
       optimization_verbose: False
       penalty_epsilon: 0.1
       obstacle_cost_exponent: 4.0
-      weight_max_vel_x: 2.0
+      weight_max_vel_x: 8.0
       weight_max_vel_theta: 2.0
       weight_acc_lim_x: 0.7
       weight_acc_lim_theta: 10.0
       weight_kinematics_nh: 50.0
       weight_kinematics_forward_drive: 2000.0
       weight_kinematics_turning_radius: 4.0
-      weight_optimaltime: 10.0 # must be > 0
+      weight_optimaltime: 20.0 # must be > 0
       weight_shortest_path: 0.3
       weight_obstacle: 300.0
       weight_inflation: 20.0
@@ -241,7 +241,7 @@ global_costmap:
 map_server:
   ros__parameters:
     use_sim_time: True
-    yaml_filename: "/home/tup/ros2_ws/src/TUP2023-Sentry-Framework/TUP2023-Sentry-Nav/navigation2/nav2_bringup/bringup/maps/133_out_elev.yaml"
+    yaml_filename: "/home/tup/ros2_ws/src/TUP2023-Sentry-Framework/TUP2023-Sentry-Nav/navigation2/nav2_bringup/bringup/maps/RMUC.yaml"
 
 map_saver:
   ros__parameters:

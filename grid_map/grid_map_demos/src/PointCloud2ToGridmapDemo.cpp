@@ -59,7 +59,7 @@ bool PointCloud2ToGridmapDemo::readParameters()
     this->declare_parameter("config_file_path", std::string());
     this->declare_parameter("integration_time", rclcpp::ParameterValue(0.0));
     this->declare_parameter("point_min_dist", rclcpp::ParameterValue(0.35));
-    this->declare_parameter("point_max_dist", rclcpp::ParameterValue(4.0));
+    this->declare_parameter("point_max_dist", rclcpp::ParameterValue(5.0));
     this->declare_parameter("filter_chain_parameter_name", std::string("filters"));
 
     this->get_parameter("pointcloud_topic", pointCloud2Topic_);

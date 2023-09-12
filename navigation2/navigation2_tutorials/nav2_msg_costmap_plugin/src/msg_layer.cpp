@@ -172,7 +172,8 @@ void MsgLayer::updateBounds(
     }
     else
     {
-        RCLCPP_WARN(rclcpp::get_logger("nav2_costmap_2d"), "Illegal robot pos detected! X:%.f ,Y:%.f", robot_x, robot_y);
+        RCLCPP_ERROR(rclcpp::get_logger("nav2_costmap_2d"), "Illegal robot pos detected! X:%.f ,Y:%.f", robot_x, robot_y);
+        // throw std::out_of_range("Invalid robot pos!.");
     }
 }
 
