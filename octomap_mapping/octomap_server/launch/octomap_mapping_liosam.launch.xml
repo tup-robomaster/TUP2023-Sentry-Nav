@@ -7,20 +7,13 @@
   www.ros.org/wiki/octomap_server for details
 -->
 <launch>
-	<node pkg="octomap_server" exec="octomap_saver_node" name="octomap_saver">
+	<node pkg="octomap_server" exec="octomap_server_node" name="octomap_server">
 		<param name="resolution" value="0.1" />
 
 		<!-- fixed map frame (set to 'map' if SLAM or localization running!) -->
 		<param name="frame_id" value="odom" />
-
-
-		<!-- data source to integrate (PointCloud2) -->
-		<remap from="cloud_in" to="/lio_sam/mapping/cloud_registered_raw" />
-		<remap from="cloud_in" to="/cloud_registered" />
-
 		<param name="point_cloud_max_z" value="2.0" />
 		<param name="point_cloud_min_z" value="-2.0" />
-		<param name="octomap_path" value="/home/tup/out.bt" />
-
+		<remap from="cloud_in" to="/lio_sam/mapping/cloud_registered_raw" />
 	</node>
 </launch>
